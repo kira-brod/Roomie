@@ -23,9 +23,9 @@ class HouseholdsHomeViewController: UIViewController {
     
     @IBAction func AddAction(_ sender: Any) {
         
-        let vc = storyboard?.instantiateViewController(withIdentifier: "HouseholdDetails") as! HouseholdDetailsViewController
-        
-        navigationController?.pushViewController(vc, animated: true)
+//        let vc = storyboard?.instantiateViewController(withIdentifier: "HouseholdDetails") as! HouseholdDetailsViewController
+//        
+//        navigationController?.pushViewController(vc, animated: true)
     }
     
     /*
