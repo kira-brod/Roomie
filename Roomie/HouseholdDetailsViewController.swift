@@ -1,33 +1,27 @@
 //
-//  HouseholdsHomeViewController.swift
+//  HouseholdDetailsViewController.swift
 //  Roomie
 //
-//  Created by Kira Brodsky on 5/26/25.
+//  Created by Kira Brodsky on 5/27/25.
 //
 
 import UIKit
 
-class HouseholdsHomeViewController: UIViewController {
+class HouseholdDetailsViewController: UIViewController {
 
-    @IBOutlet weak var H1: UILabel!
     @IBOutlet weak var Add: UIButton!
+    @IBOutlet weak var H1: UILabel!
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        H1.font = UIFont.systemFont(ofSize: 30, weight: .bold)
 
+        H1.font = UIFont.systemFont(ofSize: 30, weight: .bold)
+        
         Add.layer.cornerRadius = Add.frame.width/2
         Add.layer.masksToBounds = true
         Add.titleLabel?.font = UIFont.systemFont(ofSize: 39, weight: .bold)
     }
     
-    @IBAction func AddAction(_ sender: Any) {
-        
-        let vc = storyboard?.instantiateViewController(withIdentifier: "HouseholdDetails") as! HouseholdDetailsViewController
-        
-        navigationController?.pushViewController(vc, animated: true)
-    }
-    
+
     /*
     // MARK: - Navigation
 
