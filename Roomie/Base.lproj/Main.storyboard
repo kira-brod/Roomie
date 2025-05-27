@@ -25,69 +25,169 @@
             </objects>
             <point key="canvasLocation" x="-1294" y="727"/>
         </scene>
-        <!--Item-->
+        <!--Chores Home View Controller-->
         <scene sceneID="dGp-tl-u0n">
             <objects>
-                <viewController id="e2p-3q-pIi" sceneMemberID="viewController">
+                <viewController id="e2p-3q-pIi" customClass="ChoresHomeViewController" customModule="Roomie" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="7X2-5N-9PY">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4xR-SL-eo2">
+                                <rect key="frame" x="286" y="657" width="68" height="68"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.074509806930000005" green="0.098039209840000002" blue="0.23921570180000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="+"/>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Groceries" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BYT-Uu-lt9">
+                                <rect key="frame" x="44" y="118" width="270" height="37"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="31"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="No Chores.png" translatesAutoresizingMaskIntoConstraints="NO" id="ihw-zF-m6n">
+                                <rect key="frame" x="76" y="310" width="240" height="232"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="YpP-Ov-IbT"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item" id="qAL-Bi-o61"/>
+                    <tabBarItem key="tabBarItem" title="" image="list.bullet" catalog="system" id="qAL-Bi-o61"/>
+                    <connections>
+                        <outlet property="Add" destination="4xR-SL-eo2" id="dRM-nZ-BIq"/>
+                        <outlet property="H1" destination="BYT-Uu-lt9" id="bgu-Vv-tuj"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="G8F-I4-0zX" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-608" y="727"/>
+            <point key="canvasLocation" x="-608.39694656488552" y="726.76056338028172"/>
         </scene>
-        <!--Item-->
+        <!--Scheduled Texts Home View Controller-->
         <scene sceneID="PHo-Xb-tJC">
             <objects>
-                <viewController id="Dis-y6-aKd" sceneMemberID="viewController">
+                <viewController id="Dis-y6-aKd" customClass="ScheduledTextsHomeViewController" customModule="Roomie" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="AIr-2c-gVi">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="No Texts.png" translatesAutoresizingMaskIntoConstraints="NO" id="lt6-kI-Wba">
+                                <rect key="frame" x="76" y="309" width="240" height="235"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bo0-aV-1TX">
+                                <rect key="frame" x="286" y="657" width="68" height="68"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.074509806930000005" green="0.098039209840000002" blue="0.23921570180000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="+"/>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Scheduled Texts" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="43h-iQ-qim">
+                                <rect key="frame" x="38" y="118" width="270" height="37"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="31"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="sp9-81-KBc"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item" id="3ck-ax-2d2"/>
+                    <tabBarItem key="tabBarItem" title="" image="message" catalog="system" id="3ck-ax-2d2"/>
+                    <connections>
+                        <outlet property="Add" destination="bo0-aV-1TX" id="wDz-W8-Rgf"/>
+                        <outlet property="H1" destination="43h-iQ-qim" id="krT-zx-ZAI"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="BOf-Id-IV1" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="82" y="727"/>
+            <point key="canvasLocation" x="81.679389312977094" y="726.76056338028172"/>
         </scene>
-        <!--Item-->
+        <!--Groceries View Controller-->
         <scene sceneID="ZRB-SJ-FWL">
             <objects>
-                <viewController id="45c-gR-BIV" sceneMemberID="viewController">
+                <viewController id="45c-gR-BIV" customClass="GroceriesViewController" customModule="Roomie" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="cno-o0-KoW">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9ik-WH-O1m">
+                                <rect key="frame" x="286" y="658" width="68" height="68"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.074509806930000005" green="0.098039209840000002" blue="0.23921570180000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="+"/>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Groceries" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EUh-Hw-u3Z">
+                                <rect key="frame" x="42" y="118" width="270" height="37"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="31"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="No Groceries.png" translatesAutoresizingMaskIntoConstraints="NO" id="bSc-4I-t08">
+                                <rect key="frame" x="76" y="310" width="240" height="232"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="7Fz-T7-Saw"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item" id="V65-zc-Uel"/>
+                    <tabBarItem key="tabBarItem" title="" image="bag" catalog="system" id="V65-zc-Uel"/>
+                    <connections>
+                        <outlet property="Add" destination="9ik-WH-O1m" id="t7a-50-hAv"/>
+                        <outlet property="H1" destination="EUh-Hw-u3Z" id="8vb-Ql-nha"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SSg-zK-PV7" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="776" y="727"/>
+            <point key="canvasLocation" x="774.80916030534343" y="726.76056338028172"/>
         </scene>
-        <!--Item-->
+        <!--Households Home View Controller-->
         <scene sceneID="ys4-V6-VvE">
             <objects>
-                <viewController id="0tJ-75-gNX" sceneMemberID="viewController">
+                <viewController id="0tJ-75-gNX" customClass="HouseholdsHomeViewController" customModule="Roomie" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="OxD-J5-fIh">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="KjV-Ak-otg">
+                                <rect key="frame" x="287" y="658" width="68" height="68"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.074509806930000005" green="0.098039209840000002" blue="0.23921570180000001" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="+"/>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Households" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4vL-ty-kQv">
+                                <rect key="frame" x="40" y="118" width="270" height="37"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="31"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="No Households.png" translatesAutoresizingMaskIntoConstraints="NO" id="ABM-MP-gKi">
+                                <rect key="frame" x="76" y="311" width="240" height="231"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="g7l-2l-IAl"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Item" id="xnv-jg-Te2"/>
+                    <tabBarItem key="tabBarItem" title="" image="house" catalog="system" id="xnv-jg-Te2"/>
+                    <connections>
+                        <outlet property="Add" destination="KjV-Ak-otg" id="ZYp-AD-NGW"/>
+                        <outlet property="H1" destination="4vL-ty-kQv" id="bS4-2T-2Yf"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="7h1-Tn-6gB" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1498" y="727"/>
+            <point key="canvasLocation" x="1496.9465648854962" y="726.76056338028172"/>
         </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="77j-Gv-xrH">
@@ -113,7 +213,15 @@
         </scene>
     </scenes>
     <resources>
+        <image name="No Chores.png" width="240" height="240"/>
+        <image name="No Groceries.png" width="240" height="240"/>
+        <image name="No Households.png" width="240" height="240"/>
+        <image name="No Texts.png" width="240" height="240"/>
+        <image name="bag" catalog="system" width="128" height="128"/>
         <image name="calendar" catalog="system" width="128" height="107"/>
+        <image name="house" catalog="system" width="128" height="104"/>
+        <image name="list.bullet" catalog="system" width="128" height="87"/>
+        <image name="message" catalog="system" width="128" height="116"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
