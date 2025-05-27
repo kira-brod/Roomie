@@ -26,7 +26,12 @@ class ScheduledTextsHomeViewController: UIViewController {
         // Do any additional setup after loading the view.
     }
     
-
+    @IBAction func AddAction(_ sender: Any) {
+        let vc = storyboard?.instantiateViewController(withIdentifier: "ScheduledTextsAddText") as! ScheduledTextsAddTextViewController
+        
+        navigationController?.pushViewController(vc, animated: true)
+    }
+    
     /*
     // MARK: - Navigation
 

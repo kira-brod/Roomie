@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D5E356BF2DE6612B0060AAA0 /* ScheduledTextsAddTextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5E356BE2DE6612B0060AAA0 /* ScheduledTextsAddTextViewController.swift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		D559C9EC2DE525B500C10C57 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,7 @@
 		D559C9D52DE525B200C10C57 /* Roomie.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Roomie.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D559C9EB2DE525B500C10C57 /* RoomieTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RoomieTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D559C9F52DE525B500C10C57 /* RoomieUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RoomieUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D5E356BE2DE6612B0060AAA0 /* ScheduledTextsAddTextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduledTextsAddTextViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -88,6 +93,7 @@
 		D559C9CC2DE525B200C10C57 = {
 			isa = PBXGroup;
 			children = (
+				D5E356BE2DE6612B0060AAA0 /* ScheduledTextsAddTextViewController.swift */,
 				D559C9D72DE525B200C10C57 /* Roomie */,
 				D559C9EE2DE525B500C10C57 /* RoomieTests */,
 				D559C9F82DE525B500C10C57 /* RoomieUITests */,
@@ -249,6 +255,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D5E356BF2DE6612B0060AAA0 /* ScheduledTextsAddTextViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
