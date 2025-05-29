@@ -48,10 +48,10 @@ extension GroceryDisplay: UITableViewDataSource, UITableViewDelegate {
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "ShowGroceryDetail",
-           let detailVC = segue.destination as? GroceryDetail,
-           let topic = sender as? GroceryTopic {
-            detailVC.groceryItem = topic
-        }
+//        if segue.identifier == "ShowGroceryDetail",
+//           let detailVC = segue.destination as? GroceryDetail,
+//           let topic = sender as? GroceryTopic {
+//            detailVC.groceryItem = topic
+//        }
     }
 }
