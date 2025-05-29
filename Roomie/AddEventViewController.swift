@@ -78,33 +78,21 @@ class AddEventViewController: UIViewController {
         let event = Event(id: title, date: date, note:"string")
 
         delegate?.didCreateEvent(event)
-        navigationController?.popViewController(animated: true)
+//        navigationController?.popViewController(animated: true)
         
         let dateComp = Calendar.current.dateComponents([.year, .month, .day], from: date)
         
         events[dateComp] = [event]
+        
         NSLog("event added: \(events)")
         
     }
     
     //save is not unwinded - currently testing because event took longer to add and would only appear in events dict after segue happened
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "CancelBack" {
-            let controller = segue.destination as? ViewController
-            
-            controller?.events = events
-            NSLog("segue: event added: \(events)")
-            
-            
-        }
-        
-        if segue.identifier == "CancelUnwind" {
-            let controller = segue.destination as? ViewController
-            
-            controller?.events = events
-            NSLog("segue: event added: \(events)")
-            
-            
-        }
+        if segue.identifier == "CancelBack" || segue.identifier == "CancelUnwind" {
+                let controller = segue.destination as? ViewController
+                controller?.events = events
+            }
     }
 }

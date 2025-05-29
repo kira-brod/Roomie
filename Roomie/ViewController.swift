@@ -89,6 +89,15 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate{
         Add.layer.cornerRadius = Add.frame.width / 2
         Add.layer.masksToBounds = true
         Add.titleLabel?.font = UIFont.systemFont(ofSize: 39, weight: .bold)
+        
+        let today = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+        selectedDate = today
+//        updateEventsTextView(for: today)
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+//        updateEventsTextView(for: selectedDate)
     }
 
     func createCalendar() {
@@ -113,10 +122,16 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate{
     }
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        if let destinationVC = segue.destination as? AddEventViewController {
-//            destinationVC.delegate = self
-//            destinationVC.selectedDate = selectedDate
-//        }
+//       if let navVC = segue.destination as? UINavigationController,
+//        let addVC = navVC.topViewController as? AddEventViewController {
+//         addVC.delegate = self
+//         addVC.selectedDate = selectedDate
+//     }
+        
+        if segue.identifier == "addEvent" {
+                let controller = segue.destination as? AddEventViewController
+                controller?.events = events
+        }
     }
     
         @IBAction func unwindToMain(_ sender: UIStoryboardSegue) {
@@ -126,24 +141,29 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate{
         @IBAction func unwindToMainCancel(_ sender: UIStoryboardSegue){
     
         }
-}
-
-// MARK: - EventCreationDelegate
-extension ViewController: EventCreationDelegate {
-    func didCreateEvent(_ event: Event) {
-        let components = calendarView.calendar.dateComponents([.year, .month, .day], from: event.date)
-
-        if events[components] != nil {
-            events[components]?.append(event)
-        } else {
-            events[components] = [event]
+    
+    
+    
+    func updateTextView(_ dateComponents: DateComponents?) {
+        
+        var dateComp = calendarView.calendar.dateComponents([.year, .month, .day], from: Date.now)
+        
+        for component in events.keys {
+            if component.day == dateComponents?.day {
+                dateComp = component
+                
+            }
         }
+        
+//        let event = Event(id: "hello", date: Date.now, note:"string")
+        textView.text = ("\(String(describing: events[dateComp]))")
+//        textView.text = ("\(String(describing: events[dateComp]?[0].id))")
 
-        calendarView.reloadDecorations(forDateComponents: [components], animated: true)
     }
 }
 
-// MARK: - UICalendarViewDelegate
+
+//UICalendarViewDelegate
 extension ViewController: UICalendarViewDelegate {
     func calendarView(_ calendarView: UICalendarView, decorationFor dateComponents: DateComponents) -> UICalendarView.Decoration? {
         if let dayEvents = events[dateComponents], !dayEvents.isEmpty {
@@ -153,10 +173,13 @@ extension ViewController: UICalendarViewDelegate {
     }
 }
 
-// MARK: - UICalendarSelectionSingleDateDelegate
+// UICalendarSelectionSingleDateDelegate
 extension ViewController {
     @objc func dateSelection(_ selection: UICalendarSelectionSingleDate, didSelectDate dateComponents: DateComponents?) {
         selectedDate = dateComponents
+        NSLog("\(String(describing: dateComponents?.day))")
+        NSLog("\(events)")
+        updateTextView(selectedDate)
     }
 }
 
