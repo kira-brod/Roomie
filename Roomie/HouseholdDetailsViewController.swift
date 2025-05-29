@@ -14,11 +14,11 @@ class HouseholdDetailsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        H1.font = UIFont.systemFont(ofSize: 30, weight: .bold)
+        H1.font = UIFont.systemFont(ofSize: 25, weight: .bold)
         
-        Add.layer.cornerRadius = Add.frame.width/2
-        Add.layer.masksToBounds = true
-        Add.titleLabel?.font = UIFont.systemFont(ofSize: 39, weight: .bold)
+        Add.layer.cornerRadius = 10
+//        Add.layer.masksToBounds = true
+//        Add.titleLabel?.font = UIFont.systemFont(ofSize: 39, weight: .bold)
     }
     
 

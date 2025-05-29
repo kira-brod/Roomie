@@ -22,6 +22,7 @@ class HouseholdsHomeViewController: UIViewController {
     }
     
     @IBAction func AddAction(_ sender: Any) {
+        performSegue(withIdentifier: "toHouseholdDetails", sender: self)
         
 //        let vc = storyboard?.instantiateViewController(withIdentifier: "HouseholdDetails") as! HouseholdDetailsViewController
 //        
