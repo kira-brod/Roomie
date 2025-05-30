@@ -46,7 +46,20 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
                 let event = data[indexPath.row]
                 cell.textLabel?.text = event.id
                 cell.detailTextLabel?.text = event.note
+                
+                let icon = UIImage(systemName: "staroflife.fill")?.withRenderingMode(.alwaysTemplate)
+                cell.imageView?.image = icon
+                
+                if event.roomie == "Roomie 1" {
+                    cell.imageView?.tintColor = .systemRed
+                } else {
+                    cell.imageView?.tintColor = .systemPurple
+                }
+                
             }
+            
+            
+            
             return cell
         }
     }
@@ -83,7 +96,7 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
         NSLayoutConstraint.activate([
             calendarView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
             calendarView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            calendarView.heightAnchor.constraint(equalToConstant: 500),
+            calendarView.heightAnchor.constraint(equalToConstant: 450),
             calendarView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor)
         ])
     }

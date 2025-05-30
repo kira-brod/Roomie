@@ -55,7 +55,9 @@ class AddEventViewController: UIViewController {
 
     @IBOutlet weak var titleTextField: UITextField!
     @IBOutlet weak var datePicker: UIDatePicker!
+    @IBOutlet weak var Notes: UITextField!
     
+    @IBOutlet weak var Roomie: UITextField!
     var events: [DateComponents: [Event]] = [:]
 
 
@@ -74,9 +76,13 @@ class AddEventViewController: UIViewController {
 
     @IBAction func saveButtonTapped(_ sender: UIButton) {
         guard let title = titleTextField.text, !title.isEmpty else { return }
+        
+        guard let notes = Notes.text, !notes.isEmpty else { return }
+        
+        guard let roomie = Roomie.text, !roomie.isEmpty else { return }
 
         let date = datePicker.date
-        let event = Event(id: title, date: date, note:"string")
+        let event = Event(id: title, date: date, note: notes, roomie: roomie)
 
         delegate?.didCreateEvent(event)
 //        navigationController?.popViewController(animated: true)

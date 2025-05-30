@@ -9,6 +9,7 @@ struct Event {
     let id: String
     let date: Date
     let note: String
+    let roomie: String
 }
 
 //struct Event: Identifiable {
