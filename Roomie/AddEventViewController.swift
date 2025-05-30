@@ -65,6 +65,7 @@ class AddEventViewController: UIViewController {
         super.viewDidLoad()
 
         // Pre-select date if passed from Calendar VC
+        // Pre-select date if passed from Calendar VC
         if let selectedDate = selectedDate,
            let date = Calendar.current.date(from: selectedDate) {
             datePicker.date = date
@@ -81,8 +82,14 @@ class AddEventViewController: UIViewController {
 //        navigationController?.popViewController(animated: true)
         
         let dateComp = Calendar.current.dateComponents([.year, .month, .day], from: date)
+                
+//        events[dateComp] = [event]
         
-        events[dateComp] = [event]
+        if events[dateComp] != nil {
+            events[dateComp]?.append(event)
+        } else {
+            events[dateComp] = [event]
+        }
         
         NSLog("event added: \(events)")
         
