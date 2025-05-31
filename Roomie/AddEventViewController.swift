@@ -60,14 +60,20 @@ class AddEventViewController: UIViewController {
     @IBOutlet weak var Roomie: UITextField!
     var events: [DateComponents: [Event]] = [:]
 
-
+    @IBOutlet weak var H1: UILabel!
+    @IBOutlet weak var H2: UILabel!
+    
+    @IBOutlet weak var H2CreatedBy: UILabel!
+    
     var selectedDate: DateComponents?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Pre-select date if passed from Calendar VC
-        // Pre-select date if passed from Calendar VC
+        H1.font = UIFont.systemFont(ofSize: 30, weight: .bold)
+        H2.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+        H2CreatedBy.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+        
         if let selectedDate = selectedDate,
            let date = Calendar.current.date(from: selectedDate) {
             datePicker.date = date
