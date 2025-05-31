@@ -11,10 +11,12 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
     @IBOutlet weak var Add: UIButton!
     @IBOutlet weak var tblTable: UITableView!
     //    @IBOutlet weak var textView: UITextView!
+    @IBOutlet weak var H2: UILabel!
     
     var calendarView: UICalendarView!
     var selectedDate: DateComponents?
     var events: [DateComponents: [Event]] = [:]
+    var event : Event?
     
     var stringTableData1: DataTable!
     
@@ -36,6 +38,7 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
         func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
             return max(data.count, 1)
         }
+        
         
         func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(withIdentifier: "StringCell")!
@@ -62,6 +65,8 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
             
             return cell
         }
+        
+    
     }
     
     override func viewDidLoad() {
@@ -72,12 +77,28 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
         Add.layer.masksToBounds = true
         Add.titleLabel?.font = UIFont.systemFont(ofSize: 39, weight: .bold)
         
+        H2.font = UIFont.systemFont(ofSize: 24, weight: .bold)
+        
         let today = Calendar.current.dateComponents([.year, .month, .day], from: Date())
         selectedDate = today
         
         stringTableData1 = DataTable(events, selectedDate!)
         tblTable.dataSource = stringTableData1
         tblTable.delegate = self
+    }
+    
+    func tableView (_ tableView : UITableView, didSelectRowAt indexPath : IndexPath) {
+        
+        if !stringTableData1.data.isEmpty {
+                self.event = stringTableData1.data[indexPath.row]
+             performSegue(withIdentifier: "event", sender: nil)
+
+            } else {
+                self.event = nil
+            }
+        
+        tableView.deselectRow(at: indexPath, animated: true)
+
     }
     
     func createCalendar() {
@@ -106,6 +127,15 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
             let controller = segue.destination as? AddEventViewController
             controller?.events = events
         }
+        
+        if segue.identifier == "event" {
+            let controller = segue.destination as? EventViewController
+            controller?.event = event
+            print("Preparing for segue - indexPick: \(String(describing: event))")
+
+            
+            
+        }
     }
     
     @IBAction func unwindToMain(_ sender: UIStoryboardSegue) {
@@ -119,6 +149,8 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
         // You can add logic here to update a text view if needed
     }
 }
+
+
 
 extension ViewController: UICalendarViewDelegate {
     func calendarView(_ calendarView: UICalendarView, decorationFor dateComponents: DateComponents) -> UICalendarView.Decoration? {
@@ -139,6 +171,11 @@ extension ViewController {
         tblTable.reloadData()
     }
 }
+
+
+    
+    
+
 
     
 //    var calendarView: UICalendarView!
