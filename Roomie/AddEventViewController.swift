@@ -109,7 +109,7 @@ class AddEventViewController: UIViewController {
     
     //save is not unwinded - currently testing because event took longer to add and would only appear in events dict after segue happened
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "CancelBack" || segue.identifier == "CancelUnwind" {
+        if segue.identifier == "CancelBack" || segue.identifier == "CancelUnwind" || segue.identifier == "AddUnwind" || segue.identifier == "AddBack" {
                 let controller = segue.destination as? ViewController
                 controller?.events = events
             }

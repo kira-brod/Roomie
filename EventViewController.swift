@@ -22,7 +22,7 @@ class EventViewController: UIViewController {
         // Do any additional setup after loading the view.
         H1.font = UIFont.systemFont(ofSize: 30, weight: .bold)
         H1.text = event?.id
-        date.text = "\(event?.date)"
+        date.text = "\(event!.date)"
         notes.text = event?.note
         
         H2.font = UIFont.systemFont(ofSize: 24, weight: .bold)
