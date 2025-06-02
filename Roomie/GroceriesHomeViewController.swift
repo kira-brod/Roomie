@@ -10,18 +10,14 @@
 //class GroceriesViewController: UIViewController {
 //
 //    
-//    @IBOutlet weak var H1: UILabel!
+//
 //    @IBOutlet weak var noGroceryImageView: UIImageView!
 //    @IBOutlet weak var Add: UIButton!
 //    
 //    override func viewDidLoad() {
 //        super.viewDidLoad()
 //        
-//        H1.font = UIFont.systemFont(ofSize: 30, weight: .bold)
-//        
-//        Add.layer.cornerRadius = Add.frame.width/2
-//        Add.layer.masksToBounds = true
-//        Add.titleLabel?.font = UIFont.systemFont(ofSize: 39, weight: .bold)
+
 //
 //        // Do any additional setup after loading the view.
 //    }
@@ -38,70 +34,82 @@
 //    */
 //
 //}
-
 import UIKit
 
-struct GroceryTopic {
-    let title: String
-    let desc: String
-    let questions: [String]
-    let iconImageName: String
+struct GroceryItem {
+    var name: String
+    var quantity: Int
+    var isChecked: Bool
 }
 
-class GroceriesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class GroceriesHomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+    @IBOutlet weak var H1: UILabel!
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var noGroceryImageView: UIImageView!
     @IBOutlet weak var Add: UIButton!
-    @IBOutlet weak var H1: UILabel!
-    var groceryTopics: [GroceryTopic] = []
-    
+
+    var groceryItems: [GroceryItem] = []
+
     override func viewDidLoad() {
         super.viewDidLoad()
+        H1.font = UIFont.systemFont(ofSize: 30, weight: .bold)
+        Add.layer.cornerRadius = Add.frame.width/2
+        Add.layer.masksToBounds = true
+        Add.titleLabel?.font = UIFont.systemFont(ofSize: 39, weight: .bold)
         tableView.dataSource = self
         tableView.delegate = self
         updateUI()
     }
-    
+
     func updateUI() {
-        let hasGroceries = !groceryTopics.isEmpty
-        UIView.transition(with: view, duration: 0.3, options: .transitionCrossDissolve, animations: {
-            self.tableView.isHidden = !hasGroceries
-            self.noGroceryImageView.isHidden = hasGroceries
-        })
+        let hasGroceries = !groceryItems.isEmpty
+        tableView.isHidden = !hasGroceries
+        noGroceryImageView.isHidden = hasGroceries
     }
-    
+
+    // MARK: - TableView DataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return groceryTopics.count
+        return groceryItems.count
     }
-    
+
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "GroceryTopicCell", for: indexPath) as? GroceryTopicCell else {
             return UITableViewCell()
         }
-        let topic = groceryTopics[indexPath.row]
-        cell.titleLabel.text = topic.title
-        cell.subtitleLabel.text = topic.desc
-        if let imageName = topic.iconImageName.isEmpty ? nil : topic.iconImageName {
-            cell.iconImageView.image = UIImage(named: imageName)
-        } else {
-            cell.iconImageView.image = nil
-        }
+        let item = groceryItems[indexPath.row]
+        cell.contentLabel.text = "\(item.quantity) * \(item.name)"
+        cell.checkBox.isSelected = item.isChecked
+        cell.checkBox.tag = indexPath.row
+        cell.deleteButton.tag = indexPath.row
+        cell.checkBox.addTarget(self, action: #selector(checkBoxTapped(_:)), for: .touchUpInside)
+        cell.deleteButton.addTarget(self, action: #selector(deleteButtonTapped(_:)), for: .touchUpInside)
         return cell
     }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "AddGroceryViewController",
-           let addItemVC = segue.destination as? AddGroceryViewController {
-            addItemVC.onAssignGrocery = { [weak self] eventName, ingredients in
-                let newTopic = GroceryTopic(title: eventName, desc: ingredients, questions: [], iconImageName: "pink")
-                self?.addGrocery(newTopic)
-            }
-        }
+
+    @objc func checkBoxTapped(_ sender: UIButton) {
+        let index = sender.tag
+        groceryItems[index].isChecked.toggle()
+        tableView.reloadRows(at: [IndexPath(row: index, section: 0)], with: .automatic)
     }
-    
-    func addGrocery(_ grocery: GroceryTopic) {
-        groceryTopics.append(grocery)
+
+    @objc func deleteButtonTapped(_ sender: UIButton) {
+        let index = sender.tag
+        groceryItems.remove(at: index)
         tableView.reloadData()
         updateUI()
+    }
+
+    // MARK: - Add Button
+    @IBAction func AddTapped(_ sender: UIButton) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let addVC = storyboard.instantiateViewController(withIdentifier: "AddGroceryViewController") as? AddGroceryViewController {
+            addVC.modalPresentationStyle = .formSheet
+            addVC.onAssignGrocery = { [weak self] name, quantity in
+                self?.groceryItems.append(GroceryItem(name: name, quantity: quantity, isChecked: false))
+                self?.tableView.reloadData()
+                self?.updateUI()
+            }
+            present(addVC, animated: true)
+        }
     }
 }
