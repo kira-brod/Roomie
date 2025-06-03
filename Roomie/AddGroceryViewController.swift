@@ -10,9 +10,16 @@ class AddGroceryViewController: UIViewController, UIPickerViewDelegate, UIPicker
     @IBOutlet weak var assignGroceryButton: UIButton!
     @IBOutlet weak var cancelButton: UIButton!
 
-    let assignees = ["Alice", "Bob", "Charlie", "Diana", "Eve"]
+    let assignees = ["Roomie 1", "Roomie 2", "Roomie 3", "Roomie 4", "Roomie 5"]
     var selectedAssignee: String?
-    var onAssignGrocery: ((String, Int) -> Void)?
+    var onAssignGrocery: ((String, Int, String) -> Void)?
+    let roommateColors: [String: UIColor] = [
+        "Roomie 1": .red,
+        "Roomie 2": .blue,
+        "Roomie 3": .green,
+        "Roomie 4": .yellow,
+        "Roomie 5": .purple
+    ]
     override func viewDidLoad() {
         super.viewDidLoad()
         quantityTextField.text = "1"
@@ -67,7 +74,7 @@ class AddGroceryViewController: UIViewController, UIPickerViewDelegate, UIPicker
         guard let name = nameTextField.text, !name.isEmpty,
               let quantityText = quantityTextField.text, let quantity = Int(quantityText),
               let assignee = selectedAssignee else { return }
-        onAssignGrocery?(name, quantity)
+        onAssignGrocery?(name, quantity,assignee)
         self.dismiss(animated: true)
     }
 
