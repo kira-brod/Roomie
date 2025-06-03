@@ -22,6 +22,7 @@ class GroceriesHomeViewController: UIViewController, UITableViewDataSource, UITa
         Add.titleLabel?.font = UIFont.systemFont(ofSize: 39, weight: .bold)
         tableView.delegate = self
         tableView.dataSource = self
+        
     }
 
     func updateUI() {
@@ -52,9 +53,12 @@ class GroceriesHomeViewController: UIViewController, UITableViewDataSource, UITa
             "Roomie 4": .yellow,
             "Roomie 5": .purple
         ]
-        if let color = roommateColors[item.assignedRoomie] {
-            cell.checkBox.tintColor = color
-        } else {
+        if !item.isChecked {
+            let color = roommateColors[item.assignedRoomie]
+                cell.checkBox.tintColor = color
+            
+        }
+        if item.isChecked {
             cell.checkBox.tintColor = .gray // default color
         }
         return cell
