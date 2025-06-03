@@ -44,6 +44,7 @@
 //}
 
 import UIKit
+import Darwin
 
 protocol EventCreationDelegate: AnyObject {
     func didCreateEvent(_ event: Event)
@@ -104,6 +105,8 @@ class AddEventViewController: UIViewController {
         }
         
         NSLog("event added: \(events)")
+//        sleep(2)
+//        dismiss(animated: true)
         
     }
     
