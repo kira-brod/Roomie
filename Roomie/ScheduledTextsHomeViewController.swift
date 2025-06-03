@@ -27,19 +27,21 @@ class ScheduledTextsHomeViewController: UIViewController {
     }
     
     @IBAction func AddAction(_ sender: Any) {
-        let vc = storyboard?.instantiateViewController(withIdentifier: "ScheduledTextsAddText") as! ScheduledTextsAddTextViewController
-        
-        navigationController?.pushViewController(vc, animated: true)
+        performSegue(withIdentifier: "toScheduleDetails", sender: self)
+//        let vc = storyboard?.instantiateViewController(withIdentifier: "ScheduledTextsAddText") as! ScheduledTextsAddTextViewController
+//        
+//        navigationController?.pushViewController(vc, animated: true)
     }
     
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        if segue.identifier == "toScheduleDetails",
+           let modalVC = segue.destination as? ScheduledTextsAddTextViewController {
+            modalVC.onAddText = {
+                [weak self] text, date, note in
+                return
+            }
+        }
     }
-    */
+
 
 }
