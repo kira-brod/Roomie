@@ -33,12 +33,14 @@ class GroceriesHomeViewController: UIViewController, UITableViewDataSource, UITa
     // MARK: - TableView DataSource
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return groceryItems.count
+        
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath)  -> CGFloat{
             return 100
         }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        tableView.isScrollEnabled = true
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "GroceryTopicCell", for: indexPath) as? GroceryTopicCell else {
             return UITableViewCell()
         }
@@ -63,7 +65,9 @@ class GroceriesHomeViewController: UIViewController, UITableViewDataSource, UITa
             
         }
         if item.isChecked {
-            cell.checkBox.tintColor = .gray // default color
+            cell.checkBox.tintColor = .gray
+            cell.contentLabel.textColor = .gray
+            cell.deleteButton.isHidden = true
         }
         return cell
     }
