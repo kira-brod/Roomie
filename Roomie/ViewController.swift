@@ -169,6 +169,7 @@ extension ViewController {
         stringTableData1 = DataTable(events, selectedDate!)
         tblTable.dataSource = stringTableData1
         tblTable.reloadData()
+        NSLog("event added: \(events)")
     }
 }
 

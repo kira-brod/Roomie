@@ -490,6 +490,12 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
+                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="hPq-e7-Fgi">
+                                <rect key="frame" x="47" y="734" width="176" height="34"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                <textInputTraits key="textInputTraits"/>
+                            </textField>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="gin-pG-C8x">
                                 <rect key="frame" x="242" y="731" width="92" height="40"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -499,12 +505,10 @@
                                     <action selector="Post:" destination="IAg-En-EUz" eventType="touchUpInside" id="mRW-IC-pMQ"/>
                                 </connections>
                             </button>
-                            <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="248" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="hPq-e7-Fgi">
-                                <rect key="frame" x="47" y="734" width="176" height="34"/>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="No Announcements.png" translatesAutoresizingMaskIntoConstraints="NO" id="PSw-O0-5Ub">
+                                <rect key="frame" x="77" y="316" width="240" height="233"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
-                                <textInputTraits key="textInputTraits"/>
-                            </textField>
+                            </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="mA0-DD-89I"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -513,6 +517,7 @@
                     <connections>
                         <outlet property="H1" destination="XmQ-6s-eQ7" id="VZ6-KR-HXl"/>
                         <outlet property="Input" destination="hPq-e7-Fgi" id="2e0-sN-xa7"/>
+                        <outlet property="image" destination="PSw-O0-5Ub" id="kUW-F3-PsI"/>
                         <outlet property="tblTable" destination="6mK-J6-ZX2" id="zGC-oS-tmr"/>
                     </connections>
                 </viewController>
@@ -1044,11 +1049,11 @@
             </objects>
             <point key="canvasLocation" x="81.679389312977094" y="3.5211267605633805"/>
         </scene>
-        <!--Navigation Controller-->
+        <!--Household-->
         <scene sceneID="kfo-Za-5wl">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="gbz-Ec-ZSp" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="" image="house" catalog="system" id="xnv-jg-Te2"/>
+                    <tabBarItem key="tabBarItem" title="Household" image="house" catalog="system" id="xnv-jg-Te2"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="HcY-XQ-cyH">
                         <rect key="frame" x="0.0" y="118" width="393" height="44"/>
@@ -1139,11 +1144,11 @@
             </objects>
             <point key="canvasLocation" x="-1295.4198473282443" y="726.76056338028172"/>
         </scene>
-        <!--Navigation Controller-->
+        <!--Announcements-->
         <scene sceneID="FHK-aH-G1m">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="6Su-r3-vcG" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="" selectedImage="speaker.wave.2.bubble.left" catalog="system" id="2Xt-18-VVP"/>
+                    <tabBarItem key="tabBarItem" title="Announcements" image="speaker.wave.2.bubble.left" catalog="system" id="2Xt-18-VVP"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="vlY-ep-y5h">
                         <rect key="frame" x="0.0" y="118" width="393" height="44"/>
@@ -1164,6 +1169,7 @@
     </inferredMetricsTieBreakers>
     <resources>
         <image name="Event.png" width="240" height="240"/>
+        <image name="No Announcements.png" width="240" height="240"/>
         <image name="No Chores.png" width="240" height="240"/>
         <image name="No Groceries.png" width="240" height="240"/>
         <image name="Rommie_name.png" width="162" height="161"/>

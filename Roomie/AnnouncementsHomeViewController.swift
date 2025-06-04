@@ -12,6 +12,7 @@ class AnnouncementsHomeViewController: UIViewController, UITableViewDelegate {
     @IBOutlet weak var tblTable: UITableView!
     @IBOutlet weak var H1: UILabel!
     
+    @IBOutlet weak var image: UIImageView!
     @IBOutlet weak var Input: UITextField!
     
     var announcements : [String] = []
@@ -69,6 +70,12 @@ class AnnouncementsHomeViewController: UIViewController, UITableViewDelegate {
         tblTable.dataSource = stringTableData1
         tblTable.delegate = self
         // Do any additional setup after loading the view.
+        
+        if !announcements.isEmpty {
+            image.isHidden = true
+        } else {
+            image.isHidden = false
+        }
     }
     
     @IBAction func Post(_ sender: Any) {
@@ -77,6 +84,7 @@ class AnnouncementsHomeViewController: UIViewController, UITableViewDelegate {
         
         tblTable.dataSource = stringTableData1
         tblTable.reloadData()
+        image.isHidden = true
         
     }
     
