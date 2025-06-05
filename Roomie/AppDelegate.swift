@@ -18,9 +18,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         ) -> Bool {
             FirebaseApp.configure()
             if FirebaseApp.app() != nil {
-                print("✅ Firebase is active")
+                print("Firebase is active")
             } else {
-                print("❌ Firebase is NOT active")
+                print("Firebase is NOT active")
             }
             return true
         }

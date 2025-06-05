@@ -6,9 +6,11 @@
 //
 
 import UIKit
+import FirebaseFirestore
 
 
 struct Chore {
+    let id: String
     let title: String
     let date: Date
     let assignedTo: String
@@ -16,12 +18,10 @@ struct Chore {
     let notes: String?
 }
 
-protocol AddChoreDelegate: AnyObject {
-    func didAddChore(_ chore: Chore)
-}
 
 class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource  {
-    
+    let db = Firestore.firestore()
+
     let roommates = ["Roomie 1", "Roomie 2", "Roomie 3", "Roomie 4", "Roomie 5"]
 
     let roommateColors: [String: UIColor] = [
@@ -32,6 +32,9 @@ class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
         "Roomie 5": .purple
     ]
 
+    @IBAction func cancel(_ sender: Any) {
+        dismiss(animated: true, completion: nil)
+    }
 
     @IBOutlet weak var choreName: UITextField!
     @IBOutlet weak var choreDate: UIDatePicker!
@@ -55,30 +58,41 @@ class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
     }
 
     @IBOutlet weak var Roomie: UIPickerView!
-    
-   
     @IBOutlet weak var choreNotes: UITextField!
-    
-    weak var delegate: AddChoreDelegate?
 
     
     @IBAction func add(_ sender: Any) {
         print("Add button tapped")
 
         let title = choreName.text ?? ""
-        
         let date = choreDate.date
-            
         let selectedRow = Roomie.selectedRow(inComponent: 0)
         let assignedTo = roommates[selectedRow]
         let color = roommateColors[assignedTo] ?? UIColor.gray
-            
         let notes = choreNotes.text
+        let colorHex = color.toHexString()
 
-        let chore = Chore(title: title, date: date, assignedTo: assignedTo, color: color, notes: notes)
-            
-        delegate?.didAddChore(chore)
-            
+        let db = Firestore.firestore()
+        let docRef = db.collection("chores").document()  
+
+        let choreData: [String: Any] = [
+            "title": title,
+            "date": Timestamp(date: date),
+            "assignedTo": assignedTo,
+            "color": colorHex,
+            "notes": notes ?? ""
+        ]
+
+        docRef.setData(choreData) { error in
+            if let error = error {
+                print("Error adding chore: \(error.localizedDescription)")
+            } else {
+                print("Chore added to Firestore.")
+                let chore = Chore(id: docRef.documentID, title: title, date: date, assignedTo: assignedTo, color: color, notes: notes)
+                
+                self.dismiss(animated: true)
+            }
+        }
         dismiss(animated: true)
     }
     
@@ -94,4 +108,12 @@ class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
     }
     */
 
+}
+extension UIColor {
+    func toHexString() -> String {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        getRed(&r, green: &g, blue: &b, alpha: &a)
+        let rgb = (Int)(r * 255) << 16 | (Int)(g * 255) << 8 | (Int)(b * 255)
+        return String(format: "#%06x", rgb)
+    }
 }
