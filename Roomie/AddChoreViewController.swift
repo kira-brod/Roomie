@@ -21,7 +21,6 @@ struct Chore {
 
 class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource  {
     let db = Firestore.firestore()
-
     let roommates = ["Roomie 1", "Roomie 2", "Roomie 3", "Roomie 4", "Roomie 5"]
 
     let roommateColors: [String: UIColor] = [
@@ -43,7 +42,6 @@ class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
         Roomie.delegate = self
         Roomie.dataSource = self
 
-        // Do any additional setup after loading the view.
     }
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
