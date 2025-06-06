@@ -4,12 +4,15 @@
 import UIKit
 import SwiftUI
 import FirebaseCore
+import FirebaseFirestore
 
 
 
 class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, UITableViewDelegate{
     
-    @objc 
+    @objc
+    let db = Firestore.firestore()
+
     
 
     @IBOutlet weak var Add: UIButton!
@@ -20,6 +23,7 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
     var calendarView: UICalendarView!
     var selectedDate: DateComponents?
     var events: [DateComponents: [Event]] = [:]
+    var test: [DateComponents: [Event]] = [:]
     var event : Event?
     
     var stringTableData1: DataTable!
@@ -51,7 +55,7 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
                 cell.detailTextLabel?.text = ""
             } else {
                 let event = data[indexPath.row]
-                cell.textLabel?.text = event.id
+                cell.textLabel?.text = event.title
                 cell.detailTextLabel?.text = event.note
                 
                 let icon = UIImage(systemName: "staroflife.fill")?.withRenderingMode(.alwaysTemplate)
@@ -85,6 +89,52 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
         
         let today = Calendar.current.dateComponents([.year, .month, .day], from: Date())
         selectedDate = today
+        
+        
+        db.collection("events").order(by: "date").addSnapshotListener { snapshot, error in
+            guard let documents = snapshot?.documents, error == nil else {
+                print("❌ Failed to fetch events: \(error?.localizedDescription ?? "Unknown error")")
+                return
+            }
+
+            var eventsByDate: [Date: [Event]] = [:]
+
+            for doc in documents {
+                let data = doc.data()
+                guard
+                    let title = data["title"] as? String,
+                    let date = data["date"] as? Date,
+                    let note = data["note"] as? String,
+                    let roomie = data["roomie"] as? String
+                else {
+                    continue
+                }
+
+                let event = Event(
+                    id: doc.documentID,
+                    title: title,
+                    date: date,
+                    note: note,
+                    roomie: roomie
+                )
+
+                let day = Calendar.current.startOfDay(for: event.date)
+                eventsByDate[day, default: []].append(event)
+            }
+            
+            for (key, value) in eventsByDate {
+//                self.test[Calendar.current.dateComponents([.year, .month, .day], from: key)] = value
+                if self.test[Calendar.current.dateComponents([.year, .month, .day], from: key)] != nil {
+                    self.test[Calendar.current.dateComponents([.year, .month, .day], from: key)]?.append(contentsOf: value)
+                } else {
+                    self.test[Calendar.current.dateComponents([.year, .month, .day], from: key)] = value
+                }
+            }
+            
+            print("test: \(self.test)")
+            
+            
+        }
         
         stringTableData1 = DataTable(events, selectedDate!)
         tblTable.dataSource = stringTableData1

@@ -1,56 +1,16 @@
-//
-//  AddEventViewController.swift
-//  Roomie
-//
-//  Created by Kira Brodsky on 5/28/25.
-//
 
-//import UIKit
-//
-//class AddEventViewController: UIViewController {
-//    
-//    protocol EventCreationDelegate: AnyObject {
-//        func didCreateEvent(_ event: Event)
-//    }
-//    
-//    weak var delegate: EventCreationDelegate?
-//
-//    @IBOutlet weak var datePicker: UIDatePicker!
-//    
-//    @IBOutlet weak var titleTextField: UITextField!
-//    
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//
-//        // Do any additional setup after loading the view.
-//    }
-//    
-//    @IBAction func AddEvent(_ sender: Any) {
-//        let newEvent = Event( id: titleTextField.text ?? "", date: datePicker.date, note: "test")
-//            delegate?.didCreateEvent(newEvent)
-//            navigationController?.popViewController(animated: true)
-//    }
-//    
-//    /*
-//    // MARK: - Navigation
-//
-//    // In a storyboard-based application, you will often want to do a little preparation before navigation
-//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        // Get the new view controller using segue.destination.
-//        // Pass the selected object to the new view controller.
-//    }
-//    */
-//
-//}
 
 import UIKit
 import Darwin
+import FirebaseFirestore
 
 protocol EventCreationDelegate: AnyObject {
     func didCreateEvent(_ event: Event)
 }
 
 class AddEventViewController: UIViewController {
+    
+    let db = Firestore.firestore()
 
     weak var delegate: EventCreationDelegate?
 
@@ -89,10 +49,11 @@ class AddEventViewController: UIViewController {
         guard let roomie = Roomie.text, !roomie.isEmpty else { return }
 
         let date = datePicker.date
-        let event = Event(id: title, date: date, note: notes, roomie: roomie)
+        let event = Event(id: "", title: title, date: date, note: notes, roomie: roomie)
 
         delegate?.didCreateEvent(event)
-//        navigationController?.popViewController(animated: true)
+    
+//  navigationController?.popViewController(animated: true)
         
         let dateComp = Calendar.current.dateComponents([.year, .month, .day], from: date)
                 
@@ -107,6 +68,27 @@ class AddEventViewController: UIViewController {
         NSLog("event added: \(events)")
 //        sleep(2)
 //        dismiss(animated: true)
+        
+        let db = Firestore.firestore()
+        let docRef = db.collection("events").document()
+        
+        let eventData: [String: Any] = [
+            "title": title,
+            "date": date,
+            "note": notes,
+            "roomie": roomie
+        ]
+        
+        docRef.setData(eventData) { error in
+            if let error = error {
+                print("Error adding chore: \(error.localizedDescription)")
+            } else {
+                print("Event added to Firestore.")
+                let event = Event(id: docRef.documentID, title: title, date: date, note: notes, roomie: roomie)
+                
+//                self.dismiss(animated: true)
+            }
+        }
         
     }
     
