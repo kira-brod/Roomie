@@ -132,6 +132,7 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
             }
             
             print("test: \(self.test)")
+            print("events by date: \(eventsByDate)")
             
             
         }
