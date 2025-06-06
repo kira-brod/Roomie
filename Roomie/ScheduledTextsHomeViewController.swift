@@ -6,16 +6,13 @@
 //
 
 import UIKit
+import FirebaseFirestore
 
 class TextCell: UITableViewCell {
     @IBOutlet weak var timeLabel: UILabel!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var noteLabel: UILabel!
 }
-
-//class DateCell: UITableViewCell {
-//    @IBOutlet weak var dateLabel: UILabel!
-//}
 
 struct Text {
     let title: String
@@ -24,6 +21,8 @@ struct Text {
 }
 
 class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+    
+    let db = Firestore.firestore()
     
     func numberOfSections(in: UITableView) -> Int {
         return texts.count
@@ -110,8 +109,47 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
-        // Do any additional setup after loading the view.
+        
+        // fetching from firebase
+        db.collection("texts").order(by:"date")
+            .addSnapshotListener {
+                snapshot, error in
+                guard let documents = snapshot?.documents, error == nil else {
+                    print("error occured when fetching texts: \(error?.localizedDescription ?? "default error")")
+                    return
+                    
+                }
+                // configuring the arrays
+                var texts : [Date : [Text]] = [:]
+                for doc in documents {
+                    let data = doc.data()
+                    guard
+                        let title = data["title"] as? String,
+                            let note = data["note"] as? String,
+                        let date = data["date"] as? Timestamp else {
+                        continue
+                    }
+                    
+                    let newText = Text(title: title, time: date.dateValue(), note: note)
+                    
+                    let calendar = Calendar.current
+                    let componentsDate = calendar.dateComponents([.year, .month, .day], from: date.dateValue())
+                    let dateKey = calendar.date(from: componentsDate) ?? Date()
+                    
+                    var sortedTexts = texts[dateKey] ?? []
+    
+                    sortedTexts.append(newText)
+                    sortedTexts.sort{ $0.time < $1.time}
+                    texts[dateKey] = sortedTexts
+                }
+                
+                self.texts = texts
+                self.dateKeys = texts.keys.sorted()
+                self.tableView.reloadData()
+        }
     }
+        
+        
     
     @IBAction func AddAction(_ sender: Any) {
         performSegue(withIdentifier: "toScheduleDetails", sender: self)
@@ -119,31 +157,7 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "toScheduleDetails",
-           let modalVC = segue.destination as? ScheduledTextsAddTextViewController {
-            modalVC.onAddText = {
-                [weak self] text, date, note in
-                // extracting the date
-                let calendar = Calendar.current
-                let componentsDate = calendar.dateComponents([.year, .month, .day], from: date)
-                let dateKey = calendar.date(from: componentsDate) ?? Date()
-                
-                // extracting the time
-//                let componentsTime = calendar.dateComponents([.hour, .minute], from: date)
-//                let today = calendar.startOfDay(for: Date())
-//                let timeOnly = calendar.date(byAdding: componentsTime, to: today)
-                
-                let newText = Text(title: text, time: date, note: note)
-                NSLog(note)
-                
-                // adding and sort
-                var sortedTexts = self?.texts[dateKey] ?? []
-                sortedTexts.append(newText)
-                sortedTexts.sort{ $0.time < $1.time}
-                self?.texts[dateKey] = sortedTexts
-                
-                self?.dateKeys = (self?.texts.keys.sorted())!
-                self?.tableView.reloadData()
-            }
+           let _ = segue.destination as? ScheduledTextsAddTextViewController {
         }
     }
 

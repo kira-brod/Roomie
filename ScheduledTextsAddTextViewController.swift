@@ -6,8 +6,11 @@
 //
 
 import UIKit
+import FirebaseFirestore
 
 class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate {
+    
+    let db = Firestore.firestore()
 
 //    @IBOutlet weak var Cancel: UIButton!
     @IBOutlet weak var Notes: UITextView!
@@ -48,16 +51,30 @@ class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate 
             Notes.text = ""
         }
     }
-
-    // passing data back to home VC, dismissing modal
-    var onAddText: ((String, Date, String)-> Void)?
+//    // passing data back to home VC, dismissing modal
+//    var onAddText: ((String, Date, String)-> Void)?
     
     @IBAction func addText(_ sender: UIButton) {
         note = Notes.textColor == .lightGray ? "" : Notes.text ?? ""
         textTitle = reminderTitle.text ?? ""
         date = datePicker.date
         
-        onAddText?(textTitle!, date ?? Date(), note!)
+        let docRef = db.collection("texts").document()
+        // TO DO: add roomate picker so can schedule texts for specific phone number
+        let textData : [String: Any] = [
+            "title" : textTitle as Any,
+            "date" : Timestamp(date: date!),
+            "note" : note as Any
+        ]
+        
+        docRef.setData(textData) {
+            error in
+            if let error {
+                print("error adding text to firestore: \(error.localizedDescription)")
+            } else {
+                print("Text added to firestore")
+            }
+        }
         dismiss(animated: true)
     }
     
