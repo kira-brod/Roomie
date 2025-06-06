@@ -547,9 +547,19 @@
                                 <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
                             </textView>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="Event.png" translatesAutoresizingMaskIntoConstraints="NO" id="bS6-NB-3LZ">
-                                <rect key="frame" x="69" y="371" width="255" height="248"/>
+                                <rect key="frame" x="69" y="321" width="255" height="248"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9bq-wb-gRF">
+                                <rect key="frame" x="133" y="648" width="126" height="47"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="Delete"/>
+                                <connections>
+                                    <action selector="Delete:" destination="Qhd-HY-aoV" eventType="touchUpInside" id="f8X-60-iDX"/>
+                                    <segue destination="BYZ-38-t0r" kind="presentation" identifier="Back" modalPresentationStyle="fullScreen" id="A9w-sC-PAg"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="tti-jV-ofo"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -1152,6 +1162,7 @@
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="Fof-uZ-1Bt"/>
+        <segue reference="A9w-sC-PAg"/>
     </inferredMetricsTieBreakers>
     <resources>
         <image name="Event.png" width="240" height="240"/>

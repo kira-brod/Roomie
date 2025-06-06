@@ -96,27 +96,33 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
                 print("❌ Failed to fetch events: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
+            
+            print("documents: \(documents)")
 
             var eventsByDate: [Date: [Event]] = [:]
+            
+            
 
             for doc in documents {
                 let data = doc.data()
                 guard
                     let title = data["title"] as? String,
-                    let date = data["date"] as? Date,
+                    let date = data["date"] as? Timestamp,
                     let note = data["note"] as? String,
                     let roomie = data["roomie"] as? String
                 else {
+                    print("continue")
                     continue
                 }
 
                 let event = Event(
                     id: doc.documentID,
                     title: title,
-                    date: date,
+                    date: date.dateValue(),
                     note: note,
                     roomie: roomie
                 )
+                
 
                 let day = Calendar.current.startOfDay(for: event.date)
                 eventsByDate[day, default: []].append(event)
@@ -132,14 +138,20 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
             }
             
             print("test: \(self.test)")
-            print("events by date: \(eventsByDate)")
+//            print("events by date: \(eventsByDate)")
+//            print(count)
+            print("testing reload")
+            
             
             
         }
         
-        stringTableData1 = DataTable(events, selectedDate!)
+        stringTableData1 = DataTable(test, selectedDate!)
         tblTable.dataSource = stringTableData1
         tblTable.delegate = self
+        print("test again: \(test)")
+        
+        tblTable.reloadData()
     }
     
     func tableView (_ tableView : UITableView, didSelectRowAt indexPath : IndexPath) {
@@ -186,6 +198,7 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
         if segue.identifier == "event" {
             let controller = segue.destination as? EventViewController
             controller?.event = event
+            controller?.events = events
             print("Preparing for segue - indexPick: \(String(describing: event))")
 
             
@@ -200,16 +213,14 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
         
     }
     
-    func updateTextView(_ dateComponents: DateComponents?) {
-        // You can add logic here to update a text view if needed
-    }
+    
 }
 
 
 
 extension ViewController: UICalendarViewDelegate {
     func calendarView(_ calendarView: UICalendarView, decorationFor dateComponents: DateComponents) -> UICalendarView.Decoration? {
-        if let dayEvents = events[dateComponents], !dayEvents.isEmpty {
+        if let dayEvents = test[dateComponents], !dayEvents.isEmpty {
             return .default(color: .systemBlue, size: .medium)
         }
         return nil
@@ -221,10 +232,11 @@ extension ViewController {
         guard let dateComponents = dateComponents else { return }
         selectedDate = dateComponents
         
-        stringTableData1 = DataTable(events, selectedDate!)
+        stringTableData1 = DataTable(test, selectedDate!)
+        NSLog("event view b4 reload: \(test)")
         tblTable.dataSource = stringTableData1
         tblTable.reloadData()
-        NSLog("event added: \(events)")
+        NSLog("event view: \(test)")
     }
 }
 

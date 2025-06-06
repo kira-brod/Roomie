@@ -59,11 +59,7 @@ class AddEventViewController: UIViewController {
                 
 //        events[dateComp] = [event]
         
-        if events[dateComp] != nil {
-            events[dateComp]?.append(event)
-        } else {
-            events[dateComp] = [event]
-        }
+        
         
         NSLog("event added: \(events)")
 //        sleep(2)
@@ -86,9 +82,21 @@ class AddEventViewController: UIViewController {
                 print("Event added to Firestore.")
                 let event = Event(id: docRef.documentID, title: title, date: date, note: notes, roomie: roomie)
                 
+                if self.events[dateComp] != nil {
+                    self.events[dateComp]?.append(event)
+                } else {
+                    self.events[dateComp] = [event]
+                }
+                
 //                self.dismiss(animated: true)
             }
         }
+        
+//        if events[dateComp] != nil {
+//            events[dateComp]?.append(event)
+//        } else {
+//            events[dateComp] = [event]
+//        }
         
     }
     
