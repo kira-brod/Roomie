@@ -10,11 +10,13 @@ class GroceriesHomeViewController: UIViewController, UITableViewDataSource, UITa
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var noGroceryImageView: UIImageView!
     @IBOutlet weak var Add: UIButton!
-
+    @IBOutlet weak var scrollView: UIScrollView!
     var groceryItems: [GroceryItem] = []
 
     override func viewDidLoad() {
+
         super.viewDidLoad()
+        scrollView.showsVerticalScrollIndicator = true
         updateUI()
         H1.font = UIFont.systemFont(ofSize: 30, weight: .bold)
         Add.layer.cornerRadius = Add.frame.width/2
@@ -22,6 +24,7 @@ class GroceriesHomeViewController: UIViewController, UITableViewDataSource, UITa
         Add.titleLabel?.font = UIFont.systemFont(ofSize: 39, weight: .bold)
         tableView.delegate = self
         tableView.dataSource = self
+        
         
     }
 
@@ -36,7 +39,7 @@ class GroceriesHomeViewController: UIViewController, UITableViewDataSource, UITa
         
     }
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath)  -> CGFloat{
-            return 100
+            return 80
         }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
