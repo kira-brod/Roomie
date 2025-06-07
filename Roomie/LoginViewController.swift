@@ -10,30 +10,33 @@ import FirebaseAuth
 import FirebaseFirestore
 
 class LoginViewController: UIViewController {
-
+    
+    var isPasswordHidden : Bool = true
+    var eyeImage: UIImageView!
+    
     @IBOutlet weak var emailField: UITextField!
     @IBOutlet weak var passField: UITextField!
     
     @IBAction func login(_ sender: Any) {
         guard let email = emailField.text, let password = passField.text else { return }
-            
+        
         Auth.auth().signIn(withEmail: email, password: password) { result, error in
-        if let error = error {
-            print("Login error: \(error.localizedDescription)")
-        } else {
-            print("Logged in as \(email)")
-            self.fetchHouseholdID { found in
-                if found {
-                    DispatchQueue.main.async {
-                    self.performSegue(withIdentifier: "goToHome", sender: nil)
-                }
+            if let error = error {
+                print("Login error: \(error.localizedDescription)")
             } else {
-                DispatchQueue.main.async {
-                    self.promptForHouseholdOption()
+                print("Logged in as \(email)")
+                self.fetchHouseholdID { found in
+                    if found {
+                        DispatchQueue.main.async {
+                            self.performSegue(withIdentifier: "goToHome", sender: nil)
+                        }
+                    } else {
+                        DispatchQueue.main.async {
+                            self.promptForHouseholdOption()
+                        }
+                    }
                 }
             }
-            }
-        }
         }
     }
     
@@ -41,39 +44,69 @@ class LoginViewController: UIViewController {
     
     @IBAction func signupTapped(_ sender: Any) {
         guard let email = emailField.text, let password = passField.text else { return }
-            Auth.auth().createUser(withEmail: email, password: password) { result, error in
-                if let error = error {
-                    print("Signup error: \(error.localizedDescription)")
-                } else {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        self.promptForHouseholdOption()
-                    }
+        Auth.auth().createUser(withEmail: email, password: password) { result, error in
+            if let error = error {
+                print("Signup error: \(error.localizedDescription)")
+            } else {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.promptForHouseholdOption()
                 }
             }
+        }
     }
     override func viewDidLoad() {
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
-        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        view.addGestureRecognizer(tap)
+        
+        passField.isSecureTextEntry = true
+        
+        eyeImage = UIImageView(image: UIImage(systemName: "eye"))
+        eyeImage.tintColor = .gray
+        eyeImage.isUserInteractionEnabled = true
+        
+        
+        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 20))
+        eyeImage.frame = CGRect(x: 5, y:0, width: 30, height: 20)
+        containerView.addSubview(eyeImage)
+        passField.rightView = containerView
+        passField.rightViewMode = .always
+        
+        let eyeTap = UITapGestureRecognizer(target: self, action: #selector(togglePasswordVisibility))
+        eyeImage.addGestureRecognizer(eyeTap)
+        
+        
+        let keyboardtap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        keyboardtap.cancelsTouchesInView = false
+        view.addGestureRecognizer(keyboardtap)
     }
     
+    @objc func togglePasswordVisibility() {
+        isPasswordHidden.toggle()
+        passField.isSecureTextEntry = isPasswordHidden
+        
+        let currentText = passField.text
+            passField.text = ""
+            passField.text = currentText
+        
+        let imgName = isPasswordHidden ? "eye" : "eye.slash"
+        eyeImage.image = UIImage(systemName: imgName)
+    }
+        
+        
     @objc func dismissKeyboard() {
         view.endEditing(true)
     }
     
     func promptForHouseholdOption() {
-            let alert = UIAlertController(title: "Household", message: "Create or join a household?", preferredStyle: .alert)
-            alert.addAction(UIAlertAction(title: "Create", style: .default) { _ in self.createHousehold() })
-            alert.addAction(UIAlertAction(title: "Join", style: .default) { _ in self.joinHouseholdPrompt() })
-            present(alert, animated: true)
-        }
-
+        let alert = UIAlertController(title: "Household", message: "Create or join a household?", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Create", style: .default) { _ in self.createHousehold() })
+        alert.addAction(UIAlertAction(title: "Join", style: .default) { _ in self.joinHouseholdPrompt() })
+        present(alert, animated: true)
+    }
+    
     func createHousehold() {
         let householdID = UUID().uuidString
         let joinCode = String(UUID().uuidString.prefix(6))
-
+        
         // Create the household document
         db.collection("households").document(householdID).setData([
             "joinCode": joinCode
@@ -82,7 +115,7 @@ class LoginViewController: UIViewController {
                 print("Failed to create household: \(error.localizedDescription)")
                 return
             }
-
+            
             // Add current user to roomies subcollection
             if let user = Auth.auth().currentUser {
                 self.db.collection("households").document(householdID)
@@ -91,66 +124,66 @@ class LoginViewController: UIViewController {
                         "joinedAt": FieldValue.serverTimestamp()
                     ])
             }
-
+            
             // Save householdID locally
             UserDefaults.standard.set(householdID, forKey: "householdID")
             print("Household created and user added")
         }
     }
-
-
-        func joinHouseholdPrompt() {
-            let alert = UIAlertController(title: "Join Household", message: "Enter join code", preferredStyle: .alert)
-            alert.addTextField()
-
-            alert.addAction(UIAlertAction(title: "Join", style: .default) { _ in
-                if let code = alert.textFields?.first?.text {
-                    self.joinHousehold(with: code)
-                }
-            })
-
-            present(alert, animated: true)
-        }
-
+    
+    
+    func joinHouseholdPrompt() {
+        let alert = UIAlertController(title: "Join Household", message: "Enter join code", preferredStyle: .alert)
+        alert.addTextField()
+        
+        alert.addAction(UIAlertAction(title: "Join", style: .default) { _ in
+            if let code = alert.textFields?.first?.text {
+                self.joinHousehold(with: code)
+            }
+        })
+        
+        present(alert, animated: true)
+    }
+    
     func joinHousehold(with code: String) {
         db.collection("households")
             .whereField("joinCode", isEqualTo: code)
             .getDocuments { snapshot, error in
                 
-            guard let doc = snapshot?.documents.first else {
-                print("Invalid join code")
-                return
-            }
-
-            let householdID = doc.documentID
-            if let user = Auth.auth().currentUser {
-                self.db.collection("households").document(householdID)
-                    .collection("roomies").document(user.uid).setData([
-                        "email": user.email ?? "",
-                        "joinedAt": FieldValue.serverTimestamp()
-                    ]) { error in
-                        if let error = error {
-                            print("Failed to add user to household: \(error.localizedDescription)")
-                        } else {
-                            UserDefaults.standard.set(householdID, forKey: "householdID")
-                            print("Joined household")
+                guard let doc = snapshot?.documents.first else {
+                    print("Invalid join code")
+                    return
+                }
+                
+                let householdID = doc.documentID
+                if let user = Auth.auth().currentUser {
+                    self.db.collection("households").document(householdID)
+                        .collection("roomies").document(user.uid).setData([
+                            "email": user.email ?? "",
+                            "joinedAt": FieldValue.serverTimestamp()
+                        ]) { error in
+                            if let error = error {
+                                print("Failed to add user to household: \(error.localizedDescription)")
+                            } else {
+                                UserDefaults.standard.set(householdID, forKey: "householdID")
+                                print("Joined household")
+                            }
                         }
-                    }
+                }
             }
-        }
     }
-
-
+    
+    
     func fetchHouseholdID(completion: @escaping (Bool) -> Void) {
         guard let userID = Auth.auth().currentUser?.uid else {
             completion(false)
             return
         }
-
+        
         db.collection("households").getDocuments { snapshot, error in
             var found = false
             let group = DispatchGroup()
-
+            
             for doc in snapshot?.documents ?? [] {
                 group.enter()
                 let roomieDoc = doc.reference.collection("roomies").document(userID)
@@ -163,25 +196,26 @@ class LoginViewController: UIViewController {
                     group.leave()
                 }
             }
-
+            
             group.notify(queue: .main) {
                 completion(found)
             }
         }
     }
-
-
-//    Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
-//      // ...
-//    }
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
+        
+        
+        //    Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
+        //      // ...
+        //    }
+        /*
+         // MARK: - Navigation
+         
+         // In a storyboard-based application, you will often want to do a little preparation before navigation
+         override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+         // Get the new view controller using segue.destination.
+         // Pass the selected object to the new view controller.
+         }
+         */
+        
     }
-    */
 
-}

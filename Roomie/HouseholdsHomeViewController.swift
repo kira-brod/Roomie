@@ -11,6 +11,7 @@ import FirebaseFirestore
 class TableCell: UITableViewCell {
     @IBOutlet weak var icon: UIImageView!
     @IBOutlet weak var roomieName: UILabel!
+    @IBOutlet weak var roomiePhone: UILabel!
 }
 
 class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
@@ -96,6 +97,7 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
                 cell.roomieName.text = user.name
         cell.icon.tintColor = user.color
         cell.icon.image = UIImage(systemName: "person.fill")
+        cell.roomiePhone.text = user.phoneNum
         return cell
     }
     

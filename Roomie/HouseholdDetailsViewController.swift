@@ -30,6 +30,7 @@ class HouseholdDetailsViewController: UIViewController {
         Add.layer.cornerRadius = 10
         
         H1.placeholder = "Name"
+        phoneNum.keyboardType = .numberPad
         
         let img = UIImageView(image: UIImage(systemName: "phone.fill"))
         img.tintColor = .gray
@@ -40,7 +41,7 @@ class HouseholdDetailsViewController: UIViewController {
         
         phoneNum.leftView = containerView
         phoneNum.leftViewMode = .always
-        phoneNum.placeholder = "Phone Number"
+        phoneNum.placeholder = "(XXX)-XXX-XXX)"
         
         for btn in colorBtns {
             btn.layer.cornerRadius = btn.frame.width/2
