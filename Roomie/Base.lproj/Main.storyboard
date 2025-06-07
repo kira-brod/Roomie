@@ -279,7 +279,7 @@
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="+"/>
                                 <connections>
-                                    <action selector="AddTapped:" destination="45c-gR-BIV" eventType="touchUpInside" id="kFd-3w-xvz"/>
+                                    <action selector="AddTapped:" destination="45c-gR-BIV" eventType="touchUpInside" id="X10-g8-tp6"/>
                                     <segue destination="t7q-s2-LGg" kind="presentation" identifier="AddGroceryViewController" id="3a8-9Z-nVQ"/>
                                 </connections>
                             </button>
@@ -300,21 +300,14 @@
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <subviews>
                                                         <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r9I-t6-oso">
-                                                            <rect key="frame" x="16" y="1" width="62" height="67"/>
+                                                            <rect key="frame" x="16" y="1" width="70" height="67"/>
                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                             <color key="tintColor" systemColor="opaqueSeparatorColor"/>
                                                             <state key="normal" title="Button"/>
                                                             <buttonConfiguration key="configuration" style="tinted" title=""/>
                                                         </button>
-                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Quantity * Item Name" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="x0m-ha-fgx">
-                                                            <rect key="frame" x="94" y="4" width="144" height="64"/>
-                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                            <nil key="textColor"/>
-                                                            <nil key="highlightedColor"/>
-                                                        </label>
                                                         <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" selected="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QNZ-og-gqH">
-                                                            <rect key="frame" x="266" y="2" width="39" height="66"/>
+                                                            <rect key="frame" x="261" y="2" width="39" height="66"/>
                                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                             <color key="tintColor" systemColor="groupTableViewBackgroundColor"/>
                                                             <state key="normal" title="Button"/>
@@ -322,12 +315,24 @@
                                                                 <color key="baseBackgroundColor" name="AccentColor"/>
                                                             </buttonConfiguration>
                                                         </button>
+                                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Quantity * Item Name" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="x0m-ha-fgx">
+                                                            <rect key="frame" x="94" y="3" width="109" height="64"/>
+                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                            <nil key="textColor"/>
+                                                            <nil key="highlightedColor"/>
+                                                        </label>
+                                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="ROl-vb-3iX">
+                                                            <rect key="frame" x="87" y="0.0" width="170" height="68"/>
+                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                        </imageView>
                                                     </subviews>
                                                 </tableViewCellContentView>
                                                 <connections>
                                                     <outlet property="checkBox" destination="r9I-t6-oso" id="lCF-Of-2ki"/>
                                                     <outlet property="contentLabel" destination="x0m-ha-fgx" id="Jeb-lS-zpF"/>
                                                     <outlet property="deleteButton" destination="QNZ-og-gqH" id="SD6-VN-E0R"/>
+                                                    <outlet property="lineImageView" destination="ROl-vb-3iX" id="qNJ-qw-NLC"/>
                                                 </connections>
                                             </tableViewCell>
                                         </prototypes>
@@ -347,11 +352,11 @@
                     </view>
                     <navigationItem key="navigationItem" id="YcN-AL-qcy"/>
                     <connections>
-                        <outlet property="Add" destination="9ik-WH-O1m" id="nfL-LN-UBb"/>
-                        <outlet property="H1" destination="EUh-Hw-u3Z" id="cGf-B2-h8K"/>
-                        <outlet property="noGroceryImageView" destination="1SU-XZ-n09" id="fl7-pb-XLQ"/>
-                        <outlet property="scrollView" destination="Nup-h1-t95" id="1or-NY-7EE"/>
-                        <outlet property="tableView" destination="ljT-HF-sNg" id="hoJ-23-aYU"/>
+                        <outlet property="Add" destination="9ik-WH-O1m" id="eXd-lA-2aP"/>
+                        <outlet property="H1" destination="EUh-Hw-u3Z" id="Ifh-kE-t4N"/>
+                        <outlet property="noGroceryImageView" destination="1SU-XZ-n09" id="c7a-9r-edn"/>
+                        <outlet property="scrollView" destination="Nup-h1-t95" id="MTY-iz-Izn"/>
+                        <outlet property="tableView" destination="ljT-HF-sNg" id="joG-uS-7YN"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="SSg-zK-PV7" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
