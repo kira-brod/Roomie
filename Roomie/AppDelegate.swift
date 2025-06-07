@@ -7,6 +7,9 @@
 
 import UIKit
 import FirebaseCore
+import SwiftUI
+import FirebaseFirestore
+import FirebaseAuth
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
