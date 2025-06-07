@@ -109,6 +109,8 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
         tableView.delegate = self
         tableView.dataSource = self
         tableView.separatorStyle = .none
+        tableView.isScrollEnabled = true
+
         
         // fetching from firebase
         db.collection("texts").order(by:"date")

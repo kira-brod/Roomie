@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import FirebaseFirestore
 
 class TableCell: UITableViewCell {
     @IBOutlet weak var icon: UIImageView!
@@ -13,6 +14,8 @@ class TableCell: UITableViewCell {
 }
 
 class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+    
+    let db = Firestore.firestore()
     
     struct Person {
         let name: String
@@ -38,7 +41,46 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
         Add.layer.masksToBounds = true
         Add.titleLabel?.font = UIFont.systemFont(ofSize: 39, weight: .bold)
         tableView.allowsSelection = false
+        tableView.isScrollEnabled = true
+        
+        db.collection("roomies").order(by:"name").addSnapshotListener {
+            snapshot, error in
+            guard let documents = snapshot?.documents, error == nil else {
+                print("error occured when fetching texts: \(error?.localizedDescription ?? "default error")")
+                return
+            }
+            
+            var dbRoomies : [Person] = []
+            for doc in documents {
+                let data = doc.data()
+                guard let name = data["name"] as? String,
+                      let phoneNum = data["phone"] as? String,
+                      let color = data["color"] as? String else {
+                    continue
+                }
+                
+                let newRoomie = Person(name: name, phoneNum: phoneNum, color: convertColor(from: color))
+                dbRoomies.append(newRoomie)
+            }
+            
+            self.roomies = dbRoomies
+            self.tableView.reloadData()
+        }
+        
+        func convertColor(from name: String) -> UIColor {
+            switch name.lowercased() {
+            case "red" : return .systemRed
+            case "blue" : return .systemBlue
+            case "green" : return .systemGreen
+            case "yellow" : return .systemYellow
+            case "purple" : return .systemPurple
+            case "gray" : return .systemGray
+            default : return .gray
+            }
+        }
     }
+    
+    
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         roomies.count
@@ -47,12 +89,13 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell =
                     tableView.dequeueReusableCell(
-                        withIdentifier: "QuizCell",
+                        withIdentifier: "RoomieCell",
                         for: indexPath
                     ) as! TableCell
                 let user = roomies[indexPath.row]
                 cell.roomieName.text = user.name
-        cell.icon.image = UIImage(systemName: "person.fill")?.withTintColor(user.color)
+        cell.icon.tintColor = user.color
+        cell.icon.image = UIImage(systemName: "person.fill")
         return cell
     }
     
@@ -63,17 +106,16 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "toHouseholdDetails",
-            let modalVC = segue.destination as? HouseholdDetailsViewController {
-            modalVC.onAddRoomie = {
-                [weak self] name, phone, color in
-                let newPerson = Person(name: name, phoneNum: phone, color: color ?? .black)
-                self?.roomies.append(newPerson)
-                self?.tableView.reloadData()
+            let _ = segue.destination as? HouseholdDetailsViewController {
+            
             }
         }
-    }
     
+//    modalVC.onAddRoomie = {
+//        [weak self] name, phone, color in
+//        let newPerson = Person(name: name, phoneNum: phone, color: color ?? .black)
+//        self?.roomies.append(newPerson)
+//        self?.tableView.reloadData()
+//    }
     
-   
-
 }

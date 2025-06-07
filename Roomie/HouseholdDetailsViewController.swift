@@ -6,16 +6,20 @@
 //
 
 import UIKit
+import FirebaseFirestore
 
 class HouseholdDetailsViewController: UIViewController {
+    
+    let db = Firestore.firestore()
 
     @IBOutlet weak var Add: UIButton!
     @IBOutlet weak var H1: UITextField!
     @IBOutlet weak var phoneNum: UITextField!
     @IBOutlet var colorBtns: [UIButton]!
-    var name: String = ""
-    var phone: String = ""
-    var color: UIColor? = nil
+
+    
+    let colors: [String] = ["red", "blue", "green", "yellow", "purple"]
+    var selectedColor: String?
     
     
     override func viewDidLoad() {
@@ -43,16 +47,9 @@ class HouseholdDetailsViewController: UIViewController {
             btn.clipsToBounds = true
         }
     }
-    @IBAction func changeName(_ sender: UITextField) {
-        name = sender.text ?? ""
-    }
-    
-    @IBAction func changePhone(_ sender: UITextField) {
-        phone = sender.text ?? ""
-    }
     
     @IBAction func btnPressed(_ sender: UIButton) {
-        color = sender.backgroundColor
+        selectedColor = colors[sender.tag]
 
         for btn in colorBtns {
             btn.layer.borderWidth = 0
@@ -63,24 +60,33 @@ class HouseholdDetailsViewController: UIViewController {
         sender.layer.borderColor = UIColor.lightGray.cgColor
     }
     
-    var onAddRoomie: ((String, String, UIColor?)-> Void)?
-    
     @IBAction func addRoomie(_ sender: UIButton!) {
-        onAddRoomie?(name, phone, color)
+        
+        guard let text = H1.text, !text.isEmpty, let phoneNum = phoneNum.text, !phoneNum.isEmpty else {
+            let alert = UIAlertController(title: "Error", message: "All Roomie fields must be filled out!!", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                    self.present(alert, animated: true)
+            return
+        }
+                
+        let docRef = db.collection("roomies").document()
+        
+        let roomieData : [String: Any] = [
+            "name" : text,
+            "phone" : phoneNum,
+            "color" : selectedColor ?? "gray"
+            
+        ]
+        
+        docRef.setData(roomieData) {
+            error in
+            if let error {
+                print("error adding text to firestore: \(error.localizedDescription)")
+            } else {
+                print("Text added to firestore")
+            }
+        }
+        
         dismiss(animated: true)
-//        performSegue(withIdentifier: "backToHousehold", sender: self)
     }
-    
-//    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-//        if segue.identifier == "backToHousehold" {
-//            if let destination = segue.destination as? HouseholdsHomeViewController {
-//                destination.incomingName = name
-//                destination.incomingPhone = phone
-//                destination.incomingColor = color
-//            }
-//        }
-//    }
-    
-    
-
 }
