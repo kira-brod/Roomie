@@ -99,7 +99,7 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
             
             print("documents: \(documents)")
 
-            var eventsByDate: [Date: [Event]] = [:]
+            var eventsByDate: [DateComponents: [Event]] = [:]
             
             
 
@@ -124,18 +124,20 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
                 )
                 
 
-                let day = Calendar.current.startOfDay(for: event.date)
+                let day = Calendar.current.dateComponents([.year, .month, .day], from: Calendar.current.startOfDay(for: event.date))
                 eventsByDate[day, default: []].append(event)
             }
             
-            for (key, value) in eventsByDate {
-//                self.test[Calendar.current.dateComponents([.year, .month, .day], from: key)] = value
-                if self.test[Calendar.current.dateComponents([.year, .month, .day], from: key)] != nil {
-                    self.test[Calendar.current.dateComponents([.year, .month, .day], from: key)]?.append(contentsOf: value)
-                } else {
-                    self.test[Calendar.current.dateComponents([.year, .month, .day], from: key)] = value
-                }
-            }
+            self.events = eventsByDate
+            
+//            for (key, value) in eventsByDate {
+////                self.test[Calendar.current.dateComponents([.year, .month, .day], from: key)] = value
+//                if self.test[Calendar.current.dateComponents([.year, .month, .day], from: key)] != nil {
+//                    self.test[Calendar.current.dateComponents([.year, .month, .day], from: key)]?.append(contentsOf: value)
+//                } else {
+//                    self.test[Calendar.current.dateComponents([.year, .month, .day], from: key)] = value
+//                }
+//            }
             
             print("test: \(self.test)")
 //            print("events by date: \(eventsByDate)")
@@ -146,10 +148,9 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
             
         }
         
-        stringTableData1 = DataTable(test, selectedDate!)
+        stringTableData1 = DataTable(events, selectedDate!)
         tblTable.dataSource = stringTableData1
         tblTable.delegate = self
-        print("test again: \(test)")
         
         tblTable.reloadData()
     }
@@ -220,7 +221,7 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
 
 extension ViewController: UICalendarViewDelegate {
     func calendarView(_ calendarView: UICalendarView, decorationFor dateComponents: DateComponents) -> UICalendarView.Decoration? {
-        if let dayEvents = test[dateComponents], !dayEvents.isEmpty {
+        if let dayEvents = events[dateComponents], !dayEvents.isEmpty {
             return .default(color: .systemBlue, size: .medium)
         }
         return nil
@@ -232,11 +233,11 @@ extension ViewController {
         guard let dateComponents = dateComponents else { return }
         selectedDate = dateComponents
         
-        stringTableData1 = DataTable(test, selectedDate!)
+        stringTableData1 = DataTable(events, selectedDate!)
         NSLog("event view b4 reload: \(test)")
         tblTable.dataSource = stringTableData1
         tblTable.reloadData()
-        NSLog("event view: \(test)")
+        NSLog("event view: \(events)")
     }
 }
 
