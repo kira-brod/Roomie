@@ -1095,7 +1095,6 @@
                                 <buttonConfiguration key="configuration" style="plain" title="Create Account"/>
                                 <connections>
                                     <action selector="signupTapped:" destination="fR8-gZ-PQz" eventType="touchUpInside" id="DfK-pl-P5A"/>
-                                    <segue destination="4nU-4K-vIb" kind="presentation" modalPresentationStyle="fullScreen" id="IJV-Wf-UqF"/>
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="z68-UQ-Pe8">

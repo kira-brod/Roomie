@@ -41,13 +41,15 @@ class LoginViewController: UIViewController {
     
     @IBAction func signupTapped(_ sender: Any) {
         guard let email = emailField.text, let password = passField.text else { return }
-                Auth.auth().createUser(withEmail: email, password: password) { result, error in
-                    if let error = error {
-                        print("Signup error: \(error.localizedDescription)")
-                    } else {
+            Auth.auth().createUser(withEmail: email, password: password) { result, error in
+                if let error = error {
+                    print("Signup error: \(error.localizedDescription)")
+                } else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                         self.promptForHouseholdOption()
                     }
                 }
+            }
     }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -68,23 +70,34 @@ class LoginViewController: UIViewController {
             present(alert, animated: true)
         }
 
-        func createHousehold() {
-            let householdID = UUID().uuidString
-            let joinCode = String(UUID().uuidString.prefix(6))
+    func createHousehold() {
+        let householdID = UUID().uuidString
+        let joinCode = String(UUID().uuidString.prefix(6))
 
-            db.collection("households").document(householdID).setData([
-                "joinCode": joinCode
-            ])
-
-            if let userID = Auth.auth().currentUser?.uid {
-                db.collection("households").document(householdID).collection("roomies").document(userID).setData([
-                    "email": Auth.auth().currentUser?.email ?? ""
-                ])
+        // Create the household document
+        db.collection("households").document(householdID).setData([
+            "joinCode": joinCode
+        ]) { error in
+            if let error = error {
+                print("Failed to create household: \(error.localizedDescription)")
+                return
             }
 
+            // Add current user to roomies subcollection
+            if let user = Auth.auth().currentUser {
+                self.db.collection("households").document(householdID)
+                    .collection("roomies").document(user.uid).setData([
+                        "email": user.email ?? "",
+                        "joinedAt": FieldValue.serverTimestamp()
+                    ])
+            }
+
+            // Save householdID locally
             UserDefaults.standard.set(householdID, forKey: "householdID")
-            print("✅ Household created")
+            print("Household created and user added")
         }
+    }
+
 
         func joinHouseholdPrompt() {
             let alert = UIAlertController(title: "Join Household", message: "Enter join code", preferredStyle: .alert)
@@ -99,47 +112,64 @@ class LoginViewController: UIViewController {
             present(alert, animated: true)
         }
 
-        func joinHousehold(with code: String) {
-            db.collection("households").whereField("joinCode", isEqualTo: code).getDocuments { snapshot, error in
-                if let doc = snapshot?.documents.first {
-                    let householdID = doc.documentID
-                    if let userID = Auth.auth().currentUser?.uid {
-                        self.db.collection("households").document(householdID).collection("roomies").document(userID).setData([
-                            "email": Auth.auth().currentUser?.email ?? ""
-                        ])
+    func joinHousehold(with code: String) {
+        db.collection("households")
+            .whereField("joinCode", isEqualTo: code)
+            .getDocuments { snapshot, error in
+                
+            guard let doc = snapshot?.documents.first else {
+                print("Invalid join code")
+                return
+            }
+
+            let householdID = doc.documentID
+            if let user = Auth.auth().currentUser {
+                self.db.collection("households").document(householdID)
+                    .collection("roomies").document(user.uid).setData([
+                        "email": user.email ?? "",
+                        "joinedAt": FieldValue.serverTimestamp()
+                    ]) { error in
+                        if let error = error {
+                            print("Failed to add user to household: \(error.localizedDescription)")
+                        } else {
+                            UserDefaults.standard.set(householdID, forKey: "householdID")
+                            print("Joined household")
+                        }
                     }
-                    UserDefaults.standard.set(householdID, forKey: "householdID")
-                    print("✅ Joined household")
-                } else {
-                    print("❌ Invalid join code")
-                }
             }
         }
+    }
+
 
     func fetchHouseholdID(completion: @escaping (Bool) -> Void) {
         guard let userID = Auth.auth().currentUser?.uid else {
             completion(false)
             return
         }
-        
+
         db.collection("households").getDocuments { snapshot, error in
+            var found = false
+            let group = DispatchGroup()
+
             for doc in snapshot?.documents ?? [] {
+                group.enter()
                 let roomieDoc = doc.reference.collection("roomies").document(userID)
                 roomieDoc.getDocument { snapshot, _ in
                     if snapshot?.exists == true {
                         UserDefaults.standard.set(doc.documentID, forKey: "householdID")
-                        print("✅ Household found for user")
-                        completion(true)
+                        print("Household found for user")
+                        found = true
                     }
+                    group.leave()
                 }
             }
-            
-            // If no match found
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                completion(false)
+
+            group.notify(queue: .main) {
+                completion(found)
             }
         }
     }
+
 
 //    Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
 //      // ...
