@@ -8,7 +8,7 @@
 import UIKit
 import FirebaseFirestore
 
-class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate {
+class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate, UIPickerViewDelegate, UIPickerViewDataSource{
     
     let db = Firestore.firestore()
 
@@ -21,9 +21,12 @@ class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate 
     
     @IBOutlet weak var reminderTitle: UITextField!
     
+    @IBOutlet weak var roomiePicker: UIPickerView!
+    
     var date: Date?
     var textTitle: String?
     var note: String?
+    var roomies: [String] = []
     
     
     override func viewDidLoad() {
@@ -35,6 +38,39 @@ class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate 
         Notes.text = "Notes"
         Notes.textColor = .lightGray
         Notes.delegate = self
+        roomiePicker.delegate = self
+        roomiePicker.dataSource = self
+
+        
+        
+        db.collection("roomies").getDocuments { snapshot, error in
+            if let error = error { return }
+            guard let documents = snapshot?.documents else {
+                return
+            }
+            for doc in documents {
+                let data = doc.data()
+                let name = data["name"] as? String ?? "(No Name)"
+                self.roomies.append(name)
+            }
+            
+            DispatchQueue.main.async {
+                self.roomiePicker.reloadAllComponents()
+            }
+        }
+        
+    }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return roomies.count
+    }
+
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return roomies[row]
     }
     
     // formatting notes placeholder
@@ -75,6 +111,7 @@ class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate 
                 print("Text added to firestore")
             }
         }
+        
         dismiss(animated: true)
     }
     

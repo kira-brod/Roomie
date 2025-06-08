@@ -37,6 +37,7 @@ class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
 
     @IBOutlet weak var choreName: UITextField!
     @IBOutlet weak var choreDate: UIDatePicker!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         Roomie.delegate = self

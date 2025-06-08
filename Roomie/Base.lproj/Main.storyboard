@@ -818,6 +818,10 @@
                                     <action selector="addText:" destination="gvc-GL-IMc" eventType="touchUpInside" id="VuE-4i-rNv"/>
                                 </connections>
                             </button>
+                            <pickerView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QkZ-UF-dCI">
+                                <rect key="frame" x="-4" y="513" width="393" height="162"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMaxY="YES"/>
+                            </pickerView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="fTR-qA-3hJ"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -827,6 +831,7 @@
                         <outlet property="Notes" destination="Y8s-ZD-n1t" id="ICf-xc-zeG"/>
                         <outlet property="datePicker" destination="4Pl-dQ-lwj" id="Kgw-n1-fr2"/>
                         <outlet property="reminderTitle" destination="WCj-mQ-U13" id="aec-7p-4VG"/>
+                        <outlet property="roomiePicker" destination="QkZ-UF-dCI" id="IR0-e0-WDj"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="79Q-vS-a5S" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -971,7 +976,7 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rdo-Kd-3bA">
-                                <rect key="frame" x="91" y="579" width="32" height="35"/>
+                                <rect key="frame" x="76" y="579" width="32" height="35"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemRedColor"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -984,7 +989,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" tag="1" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rbs-Ay-84h">
-                                <rect key="frame" x="147" y="579" width="32" height="35"/>
+                                <rect key="frame" x="133" y="579" width="32" height="35"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="filled" title=""/>
@@ -993,7 +998,7 @@
                                 </connections>
                             </button>
                             <button opaque="NO" tag="2" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zBq-7z-Q6j">
-                                <rect key="frame" x="201" y="579" width="32" height="35"/>
+                                <rect key="frame" x="191" y="579" width="32" height="35"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" systemColor="systemGreenColor"/>
                                 <state key="normal" title="Button"/>
@@ -1016,18 +1021,6 @@
                                     <action selector="btnPressed:" destination="MYf-P2-vPV" eventType="touchUpInside" id="Q0F-pZ-d0r"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" tag="3" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AN8-ej-LKB">
-                                <rect key="frame" x="248" y="579" width="32" height="35"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" systemColor="systemYellowColor"/>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="filled" title="">
-                                    <color key="baseBackgroundColor" systemColor="systemYellowColor"/>
-                                </buttonConfiguration>
-                                <connections>
-                                    <action selector="btnPressed:" destination="MYf-P2-vPV" eventType="touchUpInside" id="Qrk-aj-6f8"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tLe-c2-76N">
                                 <rect key="frame" x="113" y="682" width="168" height="49"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -1037,6 +1030,18 @@
                                 <buttonConfiguration key="configuration" style="plain" title="Add Roomie"/>
                                 <connections>
                                     <action selector="addRoomie:" destination="MYf-P2-vPV" eventType="touchUpInside" id="Bpj-AY-bAT"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" tag="3" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="AN8-ej-LKB">
+                                <rect key="frame" x="249" y="579" width="32" height="35"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" systemColor="systemYellowColor"/>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="filled" title="">
+                                    <color key="baseBackgroundColor" systemColor="systemYellowColor"/>
+                                </buttonConfiguration>
+                                <connections>
+                                    <action selector="btnPressed:" destination="MYf-P2-vPV" eventType="touchUpInside" id="Qrk-aj-6f8"/>
                                 </connections>
                             </button>
                         </subviews>
@@ -1353,7 +1358,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="7BU-Jd-v9f"/>
         <segue reference="Mns-1D-3ou"/>
         <segue reference="Fof-uZ-1Bt"/>
         <segue reference="A9w-sC-PAg"/>
