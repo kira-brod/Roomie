@@ -8,7 +8,7 @@
 import UIKit
 import FirebaseFirestore
 
-class HouseholdDetailsViewController: UIViewController {
+class HouseholdDetailsViewController: UIViewController, UITextFieldDelegate {
     
     let db = Firestore.firestore()
 
@@ -31,6 +31,7 @@ class HouseholdDetailsViewController: UIViewController {
         
         H1.placeholder = "Name"
         phoneNum.keyboardType = .numberPad
+        phoneNum.delegate = self
         
         let img = UIImageView(image: UIImage(systemName: "phone.fill"))
         img.tintColor = .gray
@@ -41,15 +42,84 @@ class HouseholdDetailsViewController: UIViewController {
         
         phoneNum.leftView = containerView
         phoneNum.leftViewMode = .always
-        phoneNum.placeholder = "(XXX)-XXX-XXX)"
+        phoneNum.placeholder = "(XXX) XXX-XXX)"
         
         for btn in colorBtns {
             btn.layer.cornerRadius = btn.frame.width/2
             btn.clipsToBounds = true
         }
+        
+        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissModal(_:)))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
     }
     
+    @objc func dismissModal(_ sender: UITapGestureRecognizer) {
+        let location = sender.location(in: self.view)
+        let view = self.view.hitTest(location, with: nil)
+        
+        if !(view is UIControl) {
+            self.view.endEditing(true)
+                  dismiss(animated: true)
+              }
+            
+        }
+
+    
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+        let currPhone = phoneNum.text ?? ""
+        let updatedText = (currPhone as NSString).replacingCharacters(in: range, with: string)
+        phoneNum.text = formatPhoneNum(from : updatedText)
+        
+        return false
+    }
+    
+    func formatPhoneNum(from phoneStr : String) -> String {
+        let digits = phoneStr.filter {$0.isNumber}
+        
+        let count = digits.count
+        
+        switch count {
+            case 0:
+                return ""
+            case 1...3:
+                return "(\(digits)"
+            case 4...6:
+                let area = digits.prefix(3)
+                let first = digits.dropFirst(3)
+                return "(\(area)) \(first)"
+            default:
+                let area = digits.prefix(3)
+                let first = digits.dropFirst(3).prefix(3)
+                let second = digits.dropFirst(6).prefix(4)
+                return "(\(area)) \(first)-\(second)"
+        }
+    
+//        if count > 0 {
+//            result += "("
+//            result += String(digits.prefix(3))
+//            result += ")"
+//        }
+//        if count > 3 {
+//            result += " "
+//            result += String(digits.dropFirst(3).prefix(3))
+//        }
+//        if count > 6 {
+//            result += "-"
+//            result += String(digits.dropFirst(6).prefix(4))
+//        }
+//        NSLog("this is the formatted phone: %@", result)
+//
+//        return result
+    }
+    
+    
     @IBAction func btnPressed(_ sender: UIButton) {
+        sender.becomeFirstResponder()
         selectedColor = colors[sender.tag]
 
         for btn in colorBtns {

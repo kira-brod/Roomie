@@ -28,15 +28,19 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
     var roomies : [Person] = []
 
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var H1: UILabel!
+    @IBOutlet weak var householdName: UITextField!
+    
     @IBOutlet weak var Add: UIButton!
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        householdName.borderStyle = .none
+        
         tableView.dataSource = self
         tableView.delegate = self
         
-        H1.font = UIFont.systemFont(ofSize: 30, weight: .bold)
+        householdName.font = UIFont.systemFont(ofSize: 30, weight: .bold)
+        householdName.placeholder = "Household Name"
 
         Add.layer.cornerRadius = Add.frame.width/2
         Add.layer.masksToBounds = true
@@ -81,6 +85,13 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
         }
     }
     
+    
+    
+    @IBAction func changedName(_ sender: UITextField) {
+        if let text = sender.text, !text.isEmpty {
+            householdName.text = sender.text
+        }
+    }
     
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
