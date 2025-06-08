@@ -6,12 +6,22 @@ import SwiftUI
 import FirebaseCore
 import FirebaseFirestore
 
+struct Roomie {
+    var id : String
+    var name : String
+    var phone : String
+    var color : String
+    var email: String
+    var joinedAt: Timestamp
+}
+
 
 
 class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, UITableViewDelegate{
     
     @objc
     let db = Firestore.firestore()
+    let colors: [String : UIColor] = ["red" : .systemRed, "blue" : .systemBlue, "green" : .systemGreen, "yellow" : .systemYellow, "purple" : .systemPurple]
 
     
 
@@ -25,13 +35,17 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
     var events: [DateComponents: [Event]] = [:]
     var test: [DateComponents: [Event]] = [:]
     var event : Event?
+    var roomies : [Roomie] = []
+    var roommates : [String] = []
     
     var stringTableData1: DataTable!
     
     class DataTable: NSObject, UITableViewDataSource {
         var data: [Event] = []
+        var roomies: [Roomie] = []
+        var colors: [String:UIColor] = [:]
         
-        init(_ allEvents: [DateComponents: [Event]], _ selectedDate: DateComponents) {
+        init(_ allEvents: [DateComponents: [Event]], _ selectedDate: DateComponents, _ roomies: [Roomie], _ colors: [String:UIColor]) {
             super.init()
             for (key, value) in allEvents {
                 if let date1 = Calendar.current.date(from: key),
@@ -41,6 +55,8 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
                     break
                 }
             }
+            self.roomies = roomies
+            self.colors = colors
         }
         
         func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -61,11 +77,21 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
                 let icon = UIImage(systemName: "staroflife.fill")?.withRenderingMode(.alwaysTemplate)
                 cell.imageView?.image = icon
                 
-                if event.roomie == "Roomie 1" {
-                    cell.imageView?.tintColor = .systemRed
-                } else {
-                    cell.imageView?.tintColor = .systemPurple
+                for i in 0..<roomies.count {
+                    if roomies[i].name == event.roomie {
+                        for j in 0..<colors.count{
+                            if roomies[i].color == Array(colors.keys)[j] {
+                                cell.imageView?.tintColor = colors[roomies[i].color]
+                            }
+                        }
+                    }
                 }
+//                
+//                if event.roomie == "Roomie 1" {
+//                    cell.imageView?.tintColor = .systemRed
+//                } else {
+//                    cell.imageView?.tintColor = .systemPurple
+//                }
                 
             }
             
@@ -91,13 +117,75 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
         selectedDate = today
         
         
-        db.collection("events").order(by: "date").addSnapshotListener { snapshot, error in
+        //MARK: Roomies
+        db.collection("households").document("1C12762C-9083-43BC-B127-FB2FDEE942B3").collection("roomies").addSnapshotListener { snapshot, error in
             guard let documents = snapshot?.documents, error == nil else {
-                print("❌ Failed to fetch events: \(error?.localizedDescription ?? "Unknown error")")
+                print("Failed to fetch roomies: \(error?.localizedDescription ?? "Unknown error")")
                 return
             }
             
-            print("documents: \(documents)")
+          
+
+            var roomies: [Roomie] = []
+            var roommates: [String] = []
+
+            for doc in documents {
+                let data = doc.data()
+                guard
+                    let email = data["email"] as? String,
+                    let phone = data["phone"] as? String,
+                    let name = data["name"] as? String,
+                    let color = data["color"] as? String,
+                    let joinedAt = data["joinedAt"] as? Timestamp
+                else {
+                    continue
+                }
+
+                let roomie = Roomie(
+                    id: doc.documentID,
+                    name: name,
+                    phone: phone,
+                    color: color,
+                    email: email,
+                    joinedAt: joinedAt
+                )
+
+                roomies.append(roomie)
+                roommates.append(roomie.name)
+            }
+            
+
+            self.roomies = roomies
+            self.roommates = roommates
+            print("self: \(self.roomies)")
+//            print("posts: \(posts)")
+            
+//               self.stringTableData1 = DataTable(self.posts, self.roommateColors)
+//               self.tblTable.dataSource = self.stringTableData1
+//               self.tblTable.delegate = self
+//               self.tblTable.reloadData()
+            
+            
+//
+            
+            
+        }
+        
+        print("roomies: \(roomies)")
+        
+        
+        
+        
+        
+        
+        //MARK: Events
+        db.collection("events").order(by: "date").addSnapshotListener { snapshot, error in
+            guard let documents = snapshot?.documents, error == nil else {
+                print("Failed to fetch events: \(error?.localizedDescription ?? "Unknown error")")
+                return
+            }
+            
+//            print("documents: \(documents)")
 
             var eventsByDate: [DateComponents: [Event]] = [:]
             
@@ -111,7 +199,7 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
                     let note = data["note"] as? String,
                     let roomie = data["roomie"] as? String
                 else {
-                    print("continue")
+//                    print("continue")
                     continue
                 }
 
@@ -139,16 +227,16 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
 //                }
 //            }
             
-            print("test: \(self.test)")
+//            print("test: \(self.test)")
 //            print("events by date: \(eventsByDate)")
 //            print(count)
-            print("testing reload")
+//            print("testing reload")
             
             
             
         }
         
-        stringTableData1 = DataTable(events, selectedDate!)
+        stringTableData1 = DataTable(events, selectedDate!, roomies, colors)
         tblTable.dataSource = stringTableData1
         tblTable.delegate = self
         
@@ -194,6 +282,7 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
         if segue.identifier == "addEvent" {
             let controller = segue.destination as? AddEventViewController
             controller?.events = events
+            controller?.roommates = roommates
         }
         
         if segue.identifier == "event" {
@@ -233,11 +322,11 @@ extension ViewController {
         guard let dateComponents = dateComponents else { return }
         selectedDate = dateComponents
         
-        stringTableData1 = DataTable(events, selectedDate!)
-        NSLog("event view b4 reload: \(test)")
+        stringTableData1 = DataTable(events, selectedDate!, roomies, colors)
+//        NSLog("event view b4 reload: \(test)")
         tblTable.dataSource = stringTableData1
         tblTable.reloadData()
-        NSLog("event view: \(events)")
+        NSLog("roomies again: \(roomies)")
     }
 }
 

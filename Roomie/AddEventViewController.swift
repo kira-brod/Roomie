@@ -8,9 +8,10 @@ protocol EventCreationDelegate: AnyObject {
     func didCreateEvent(_ event: Event)
 }
 
-class AddEventViewController: UIViewController {
+class AddEventViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource {
     
     let db = Firestore.firestore()
+    let colors: [String] = ["red", "blue", "green", "yellow", "purple"]
 
     weak var delegate: EventCreationDelegate?
 
@@ -26,7 +27,10 @@ class AddEventViewController: UIViewController {
     
     @IBOutlet weak var H2CreatedBy: UILabel!
     
+    @IBOutlet weak var picker: UIPickerView!
     var selectedDate: DateComponents?
+    var roommates : [String] = []
+    var indexSelected = 0
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -39,6 +43,9 @@ class AddEventViewController: UIViewController {
            let date = Calendar.current.date(from: selectedDate) {
             datePicker.date = date
         }
+        
+        self.picker.delegate = self
+        self.picker.dataSource = self
     }
 
     @IBAction func saveButtonTapped(_ sender: UIButton) {
@@ -46,7 +53,9 @@ class AddEventViewController: UIViewController {
         
         guard let notes = Notes.text, !notes.isEmpty else { return }
         
-        guard let roomie = Roomie.text, !roomie.isEmpty else { return }
+//        guard let roomie = Roomie.text, !roomie.isEmpty else { return }
+        
+        let roomie = roommates[indexSelected]
 
         let date = datePicker.date
         let event = Event(id: "", title: title, date: date, note: notes, roomie: roomie)
@@ -106,5 +115,21 @@ class AddEventViewController: UIViewController {
                 let controller = segue.destination as? ViewController
                 controller?.events = events
             }
+    }
+    
+    func numberOfComponents(in pickerView: UIPickerView) -> Int {
+        return 1
+    }
+
+    func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
+        return roommates.count
+    }
+
+    func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
+        return roommates[row]
+    }
+    
+    func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
+        indexSelected = row
     }
 }

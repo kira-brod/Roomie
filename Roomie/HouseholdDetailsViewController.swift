@@ -139,13 +139,19 @@ class HouseholdDetailsViewController: UIViewController, UITextFieldDelegate {
                     self.present(alert, animated: true)
             return
         }
+        
                 
-        let docRef = db.collection("roomies").document()
+//        let docRef = db.collection("roomies").document()
+        let docRef = db.collection("households").document("1C12762C-9083-43BC-B127-FB2FDEE942B3").collection("roomies").document()
+
+        
         
         let roomieData : [String: Any] = [
             "name" : text,
             "phone" : phoneNum,
-            "color" : selectedColor ?? "gray"
+            "color" : selectedColor ?? "gray",
+            "email": text,
+            "joinedAt": FieldValue.serverTimestamp()
             
         ]
         
