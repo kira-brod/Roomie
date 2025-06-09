@@ -24,8 +24,6 @@ class GroceriesHomeViewController: UIViewController, UITableViewDataSource, UITa
         tableView.delegate = self
         tableView.dataSource = self
         tableView.isScrollEnabled = true
-        
-
         if UserDefaults.standard.string(forKey: "householdID") != nil {
             loadRoommateColors()
             loadGroceryItems()
@@ -73,8 +71,20 @@ class GroceriesHomeViewController: UIViewController, UITableViewDataSource, UITa
     }
     
     func loadGroceryItems() {
-        guard let householdID = UserDefaults.standard.string(forKey: "householdID") else {
-            print("No household ID found")
+        if let householdID = UserDefaults.standard.string(forKey: "householdID") {
+            db.collection("households").document(householdID).collection("groceries").addSnapshotListener { [weak self] querySnapshot, error in
+                self?.handleGrocerySnapshot(querySnapshot, error)
+            }
+        } else {
+            db.collection("groceries").addSnapshotListener { [weak self] querySnapshot, error in
+                self?.handleGrocerySnapshot(querySnapshot, error)
+            }
+        }
+    }
+    
+    private func handleGrocerySnapshot(_ querySnapshot: QuerySnapshot?, _ error: Error?) {
+        guard let documents = querySnapshot?.documents else {
+            print("Error fetching documents: \(error?.localizedDescription ?? "Unknown error")")
             self.groceryItems = []
             DispatchQueue.main.async {
                 self.tableView.reloadData()
@@ -83,64 +93,70 @@ class GroceriesHomeViewController: UIViewController, UITableViewDataSource, UITa
             return
         }
         
-        db.collection("households").document(householdID).collection("groceries").addSnapshotListener { [weak self] querySnapshot, error in
-            guard let documents = querySnapshot?.documents else {
-                print("Error fetching documents: \(error?.localizedDescription ?? "Unknown error")")
-                self?.groceryItems = []
-                DispatchQueue.main.async {
-                    self?.tableView.reloadData()
-                    self?.updateUI()
-                }
-                return
+        self.groceryItems = documents.compactMap { document ->
+            GroceryItem? in
+            return GroceryItem.fromDictionary(document.data(), id: document.documentID)
+        }.sorted { first, second in
+            if first.isChecked == second.isChecked {
+                return false
             }
-            
-            self?.groceryItems = documents.compactMap { document ->
-                GroceryItem? in
-                return GroceryItem.fromDictionary(document.data(), id: document.documentID)
-            }.sorted { first, second in
-                if first.isChecked == second.isChecked {
-                    return false
-                }
-                return !first.isChecked && second.isChecked
-            }
-            
-            DispatchQueue.main.async {
-                self?.tableView.reloadData()
-                self?.updateUI()
-            }
+            return !first.isChecked && second.isChecked
+        }
+        
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+            self.updateUI()
         }
     }
     
     func addGroceryItem(_ item: GroceryItem) {
-        guard let householdID = UserDefaults.standard.string(forKey: "householdID") else {
-            print("No household ID found")
-            return
-        }
-        db.collection("households").document(householdID).collection("groceries").addDocument(data: item.toDictionary()) { error in
-            if let error = error {
-                print("Error adding document: \(error.localizedDescription)")
+        if let householdID = UserDefaults.standard.string(forKey: "householdID") {
+            db.collection("households").document(householdID).collection("groceries").addDocument(data: item.toDictionary()) { error in
+                if let error = error {
+                    print("Error adding document: \(error.localizedDescription)")
+                }
+            }
+        } else {
+            db.collection("groceries").addDocument(data: item.toDictionary()) { error in
+                if let error = error {
+                    print("Error adding document: \(error.localizedDescription)")
+                }
             }
         }
     }
 
     func updateGroceryItem(_ item: GroceryItem) {
-        guard let id = item.id,
-              let householdID = UserDefaults.standard.string(forKey: "householdID") else { return }
+        guard let id = item.id else { return }
         
-        db.collection("households").document(householdID).collection("groceries").document(id).updateData(item.toDictionary()) { error in
-            if let error = error {
-                print("Error updating document: \(error.localizedDescription)")
+        if let householdID = UserDefaults.standard.string(forKey: "householdID") {
+            db.collection("households").document(householdID).collection("groceries").document(id).updateData(item.toDictionary()) { error in
+                if let error = error {
+                    print("Error updating document: \(error.localizedDescription)")
+                }
+            }
+        } else {
+            db.collection("groceries").document(id).updateData(item.toDictionary()) { error in
+                if let error = error {
+                    print("Error updating document: \(error.localizedDescription)")
+                }
             }
         }
     }
     
     func deleteGroceryItem(_ item: GroceryItem) {
-        guard let id = item.id,
-              let householdID = UserDefaults.standard.string(forKey: "householdID") else { return }
+        guard let id = item.id else { return }
         
-        db.collection("households").document(householdID).collection("groceries").document(id).delete() { error in
-            if let error = error {
-                print("Error removing document: \(error.localizedDescription)")
+        if let householdID = UserDefaults.standard.string(forKey: "householdID") {
+            db.collection("households").document(householdID).collection("groceries").document(id).delete() { error in
+                if let error = error {
+                    print("Error removing document: \(error.localizedDescription)")
+                }
+            }
+        } else {
+            db.collection("groceries").document(id).delete() { error in
+                if let error = error {
+                    print("Error removing document: \(error.localizedDescription)")
+                }
             }
         }
     }
@@ -180,8 +196,6 @@ class GroceriesHomeViewController: UIViewController, UITableViewDataSource, UITa
             cell.checkBox.setImage(UIImage(systemName: "checkmark.circle.fill"), for: .normal)
             cell.checkBox.tintColor = .gray
             cell.deleteButton.isHidden = true
-            
-
             let attributedText = NSMutableAttributedString(string: text)
             attributedText.addAttribute(.strikethroughStyle,
                                       value: NSUnderlineStyle.single.rawValue,
@@ -192,14 +206,11 @@ class GroceriesHomeViewController: UIViewController, UITableViewDataSource, UITa
             cell.contentLabel.attributedText = attributedText
             
         } else {
-
             cell.checkBox.setImage(UIImage(systemName: "circle"), for: .normal)
-
             let color = roommateColors[item.assignedRoomie] ?? .gray
             cell.checkBox.tintColor = color
             cell.deleteButton.isHidden = false
             
-
             cell.contentLabel.attributedText = nil
             cell.contentLabel.text = text
         }
@@ -217,16 +228,7 @@ class GroceriesHomeViewController: UIViewController, UITableViewDataSource, UITa
             }
             completionHandler(true)
         }
-        
-        let item = groceryItems[indexPath.row]
-        if item.isChecked {
-            checkAction.image = UIImage(systemName: "circle")
-            checkAction.title = "Uncheck"
-        } else {
-            checkAction.image = UIImage(systemName: "checkmark.circle.fill")
-            checkAction.backgroundColor = .systemGreen
-            checkAction.title = "Check"
-        }
+        checkAction.backgroundColor = .clear
         
         let configuration = UISwipeActionsConfiguration(actions: [checkAction])
         configuration.performsFirstActionWithFullSwipe = true
@@ -255,7 +257,6 @@ class GroceriesHomeViewController: UIViewController, UITableViewDataSource, UITa
 
     // MARK: - Add Button
     @IBAction func AddTapped(_ sender: UIButton) {
-
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         if let addVC = storyboard.instantiateViewController(withIdentifier: "AddGroceryViewController") as? AddGroceryViewController {
             addVC.modalPresentationStyle = .formSheet
