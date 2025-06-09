@@ -188,7 +188,7 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
         
         
         // fetching all roomies and colors
-        db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies").getDocuments {snapshot, error in
+        db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies").addSnapshotListener {snapshot, error in
             if let docs = snapshot?.documents {
                 for doc in docs {
                     let name = doc["name"] as? String ?? ""
