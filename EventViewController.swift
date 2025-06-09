@@ -8,15 +8,18 @@
 import UIKit
 import FirebaseFirestore
 
+
+
 class EventViewController: UIViewController {
     
     let db = Firestore.firestore()
     
-
+    
 
     @IBOutlet weak var H1: UILabel!
     var event : Event?
     var events : [DateComponents: [Event]] = [:]
+    
     
     @IBOutlet weak var H2: UILabel!
     @IBOutlet weak var date: UITextView!
@@ -24,11 +27,15 @@ class EventViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateStyle = .medium
+        dateFormatter.timeStyle = .short
+        let formattedDate = dateFormatter.string(from: event!.date)
+        
         // Do any additional setup after loading the view.
         H1.font = UIFont.systemFont(ofSize: 30, weight: .bold)
         H1.text = event?.title
-        date.text = "\(event!.date)"
+        date.text = "\(formattedDate)"
         notes.text = event?.note
         
         H2.font = UIFont.systemFont(ofSize: 24, weight: .bold)
@@ -58,7 +65,7 @@ class EventViewController: UIViewController {
     }
     
     func deleteEventFromFirestore(_ event: Event) {
-        db.collection("events").document(event.id).delete { error in
+        db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("events").document(event.id).delete { error in
             if let error = error {
                 print("Failed to delete event: \(error.localizedDescription)")
             } else {

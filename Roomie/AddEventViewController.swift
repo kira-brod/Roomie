@@ -4,6 +4,7 @@ import UIKit
 import Darwin
 import FirebaseFirestore
 
+
 protocol EventCreationDelegate: AnyObject {
     func didCreateEvent(_ event: Event)
 }
@@ -12,6 +13,7 @@ class AddEventViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
     
     let db = Firestore.firestore()
     let colors: [String] = ["red", "blue", "green", "yellow", "purple"]
+    
 
     weak var delegate: EventCreationDelegate?
 
@@ -75,7 +77,7 @@ class AddEventViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
 //        dismiss(animated: true)
         
         let db = Firestore.firestore()
-        let docRef = db.collection("events").document()
+        let docRef = db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("events").document()
         
         let eventData: [String: Any] = [
             "title": title,

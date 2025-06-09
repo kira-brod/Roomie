@@ -30,6 +30,7 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
 
     @IBOutlet weak var tableView: UITableView!
     
+    @IBOutlet weak var logout: UIButton!
     @IBOutlet weak var pageTitle: UILabel!
     @IBOutlet weak var joinCode: UILabel!
     @IBOutlet weak var imageView: UIImageView!
@@ -46,6 +47,8 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
         Add.layer.masksToBounds = true
         Add.titleLabel?.font = UIFont.systemFont(ofSize: 39, weight: .bold)
         tableView.isScrollEnabled = true
+        
+        logout.layer.cornerRadius = 10
         
         //getting the join code
         db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).getDocument() {

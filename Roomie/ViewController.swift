@@ -121,7 +121,7 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
         
         
         //MARK: Roomies
-        db.collection("households").document(Singleton.shared.householdID).collection("roomies").addSnapshotListener { snapshot, error in
+        db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies").addSnapshotListener { snapshot, error in
             guard let documents = snapshot?.documents, error == nil else {
                 print("Failed to fetch roomies: \(error?.localizedDescription ?? "Unknown error")")
                 return
@@ -182,7 +182,7 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
         
         
         //MARK: Events
-        db.collection("events").order(by: "date").addSnapshotListener { snapshot, error in
+        db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("events").order(by: "date").addSnapshotListener { snapshot, error in
             guard let documents = snapshot?.documents, error == nil else {
                 print("Failed to fetch events: \(error?.localizedDescription ?? "Unknown error")")
                 return

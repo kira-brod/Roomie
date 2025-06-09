@@ -136,7 +136,7 @@ class AnnouncementsHomeViewController: UIViewController, UITableViewDelegate, UI
             }
         }
         func deletePostFromFirestore(post: Announcement) {
-            db.collection("announcements").document(post.id).delete { error in
+            db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("announcements").document(post.id).delete { error in
                 if let error = error {
                     print("Failed to delete chore: \(error.localizedDescription)")
                 } else {
@@ -168,7 +168,7 @@ class AnnouncementsHomeViewController: UIViewController, UITableViewDelegate, UI
         }
         
         //MARK: Roomies
-        db.collection("households").document(Singleton.shared.householdID).collection("roomies").addSnapshotListener { snapshot, error in
+        db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies").addSnapshotListener { snapshot, error in
             guard let documents = snapshot?.documents, error == nil else {
                 print("Failed to fetch roomies: \(error?.localizedDescription ?? "Unknown error")")
                 return
@@ -226,7 +226,7 @@ class AnnouncementsHomeViewController: UIViewController, UITableViewDelegate, UI
         
         
         //MARK: Announcements
-        db.collection("announcements").addSnapshotListener { snapshot, error in
+        db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("announcements").addSnapshotListener { snapshot, error in
             guard let documents = snapshot?.documents, error == nil else {
                 print("Failed to fetch announcements: \(error?.localizedDescription ?? "Unknown error")")
                 return
@@ -291,7 +291,7 @@ class AnnouncementsHomeViewController: UIViewController, UITableViewDelegate, UI
         
         
         let db = Firestore.firestore()
-        let docRef = db.collection("announcements").document()
+        let docRef = db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("announcements").document()
         
         let postData: [String: Any] = [
             "notes": notes,
