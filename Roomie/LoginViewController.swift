@@ -16,16 +16,32 @@ class LoginViewController: UIViewController {
     
     @IBOutlet weak var emailField: UITextField!
     @IBOutlet weak var passField: UITextField!
-    
+    @IBOutlet weak var loginBtn: UIButton!
     
     @IBAction func login(_ sender: Any) {
-        guard let email = emailField.text, let password = passField.text else { return }
+        guard let email = emailField.text, !email.isEmpty, let password = passField.text, !password.isEmpty else {
+            DispatchQueue.main.async {
+                self.showAlert(title: "Error", message: "All login fields must be filled out.")
+            }
+            return
+        }
         
         Auth.auth().signIn(withEmail: email, password: password) { result, error in
             if let error = error {
                 print("Login error: \(error.localizedDescription)")
-            } else {
-                print("Logged in as \(email)")
+                DispatchQueue.main.async {
+                    self.showAlert(title: "Error", message: error.localizedDescription)
+                }
+                return
+            }
+            
+            guard let result = result else {
+                DispatchQueue.main.async {
+                    self.showAlert(title: "Error", message: "User not found")
+                }
+                return
+            }
+            print("Logged in as \(email)")
                 self.fetchHouseholdID { found in
                     if found {
                         DispatchQueue.main.async {
@@ -39,7 +55,8 @@ class LoginViewController: UIViewController {
                 }
             }
         }
-    }
+            
+        
     
     let db = Firestore.firestore()
     
@@ -48,6 +65,9 @@ class LoginViewController: UIViewController {
         Auth.auth().createUser(withEmail: email, password: password) { result, error in
             if let error = error {
                 print("Signup error: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    self.showAlert(title: "Error", message: error.localizedDescription)
+                }
             } else {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     self.promptForHouseholdOption()
@@ -57,6 +77,16 @@ class LoginViewController: UIViewController {
     }
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        do {
+            try Auth.auth().signOut()
+            print("User signed out successfully.")
+        } catch let signOutError as NSError {
+            print("Error signing out: %@", signOutError)
+        }
+
+        
+        loginBtn.layer.cornerRadius = 10
         
         passField.isSecureTextEntry = true
         
@@ -97,6 +127,13 @@ class LoginViewController: UIViewController {
         view.endEditing(true)
     }
     
+    func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        present(alert, animated: true)
+        return
+    }
+    
     func promptForHouseholdOption() {
         let alert = UIAlertController(title: "Household", message: "Create or join a household?", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Create", style: .default) { _ in self.createHousehold() })
@@ -114,13 +151,14 @@ class LoginViewController: UIViewController {
         ]) { error in
             if let error = error {
                 print("Failed to create household: \(error.localizedDescription)")
+                self.showAlert(title: "Error", message: error.localizedDescription)
                 return
             }
             
             // Add current user to roomies subcollection
             if let user = Auth.auth().currentUser {
                 self.db.collection("households").document(householdID)
-                    .collection("roomies").document(user.uid).setData([
+                    .collection("memberLogin").document(user.uid).setData([
                         "email": user.email ?? "",
                         "joinedAt": FieldValue.serverTimestamp()
                     ])
@@ -129,6 +167,11 @@ class LoginViewController: UIViewController {
             // Save householdID locally
             UserDefaults.standard.set(householdID, forKey: "householdID")
             print("Household created and user added")
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.performSegue(withIdentifier: "goToHome", sender: nil)
+            }
+            
         }
     }
     
@@ -153,21 +196,28 @@ class LoginViewController: UIViewController {
                 
                 guard let doc = snapshot?.documents.first else {
                     print("Invalid join code")
+                    
+                    self.showAlert(title: "Error", message: "Invalid join code")
                     return
                 }
                 
                 let householdID = doc.documentID
                 if let user = Auth.auth().currentUser {
                     self.db.collection("households").document(householdID)
-                        .collection("roomies").document(user.uid).setData([
+                        .collection("memberLogin").document(user.uid).setData([
                             "email": user.email ?? "",
                             "joinedAt": FieldValue.serverTimestamp()
                         ]) { error in
                             if let error = error {
                                 print("Failed to add user to household: \(error.localizedDescription)")
+                                self.showAlert(title: "Error", message: error.localizedDescription)
                             } else {
                                 UserDefaults.standard.set(householdID, forKey: "householdID")
                                 print("Joined household")
+                                
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                    self.performSegue(withIdentifier: "goToHome", sender: nil)
+                                }
                             }
                         }
                 }
@@ -187,7 +237,7 @@ class LoginViewController: UIViewController {
             
             for doc in snapshot?.documents ?? [] {
                 group.enter()
-                let roomieDoc = doc.reference.collection("roomies").document(userID)
+                let roomieDoc = doc.reference.collection("memberLogin").document(userID)
                 roomieDoc.getDocument { snapshot, _ in
                     if snapshot?.exists == true {
                         UserDefaults.standard.set(doc.documentID, forKey: "householdID")

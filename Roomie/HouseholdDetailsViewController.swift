@@ -7,6 +7,8 @@
 
 import UIKit
 import FirebaseFirestore
+import FirebaseAuth
+
 
 class HouseholdDetailsViewController: UIViewController, UITextFieldDelegate {
     
@@ -42,7 +44,7 @@ class HouseholdDetailsViewController: UIViewController, UITextFieldDelegate {
         
         phoneNum.leftView = containerView
         phoneNum.leftViewMode = .always
-        phoneNum.placeholder = "(XXX) XXX-XXX)"
+        phoneNum.placeholder = "(XXX) XXX-XXXX"
         
         for btn in colorBtns {
             btn.layer.cornerRadius = btn.frame.width/2
@@ -98,23 +100,6 @@ class HouseholdDetailsViewController: UIViewController, UITextFieldDelegate {
                 let second = digits.dropFirst(6).prefix(4)
                 return "(\(area)) \(first)-\(second)"
         }
-    
-//        if count > 0 {
-//            result += "("
-//            result += String(digits.prefix(3))
-//            result += ")"
-//        }
-//        if count > 3 {
-//            result += " "
-//            result += String(digits.dropFirst(3).prefix(3))
-//        }
-//        if count > 6 {
-//            result += "-"
-//            result += String(digits.dropFirst(6).prefix(4))
-//        }
-//        NSLog("this is the formatted phone: %@", result)
-//
-//        return result
     }
     
     
@@ -140,9 +125,9 @@ class HouseholdDetailsViewController: UIViewController, UITextFieldDelegate {
             return
         }
         
-                
+        
 //        let docRef = db.collection("roomies").document()
-        let docRef = db.collection("households").document("1C12762C-9083-43BC-B127-FB2FDEE942B3").collection("roomies").document()
+        let docRef = db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies").document()
 
         
         
@@ -150,10 +135,9 @@ class HouseholdDetailsViewController: UIViewController, UITextFieldDelegate {
             "name" : text,
             "phone" : phoneNum,
             "color" : selectedColor ?? "gray",
-            "email": text,
-            "joinedAt": FieldValue.serverTimestamp()
-            
         ]
+        
+        
         
         docRef.setData(roomieData) {
             error in

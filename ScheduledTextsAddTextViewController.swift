@@ -16,7 +16,7 @@ class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate,
     @IBOutlet weak var Notes: UITextView!
     
     @IBOutlet weak var Add: UIButton!
-    
+    @IBOutlet weak var Cancel: UIButton!
     @IBOutlet weak var datePicker: UIDatePicker!
     
     @IBOutlet weak var reminderTitle: UITextField!
@@ -40,10 +40,12 @@ class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate,
         Notes.delegate = self
         roomiePicker.delegate = self
         roomiePicker.dataSource = self
+        Add.layer.cornerRadius = 10
+        Cancel.layer.cornerRadius = 10
 
         
         
-        db.collection("roomies").getDocuments { snapshot, error in
+    db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies").getDocuments { snapshot, error in
             if let error = error { return }
             guard let documents = snapshot?.documents else {
                 return
@@ -94,13 +96,26 @@ class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate,
         note = Notes.textColor == .lightGray ? "" : Notes.text ?? ""
         textTitle = reminderTitle.text ?? ""
         date = datePicker.date
+     
+        if date! < Date() {
+            let alert = UIAlertController(title: "Error", message: "The selected date is in the past.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            present(alert, animated: true)
+            return
+        }
         
-        let docRef = db.collection("texts").document()
+        let selectedRow = roomiePicker.selectedRow(inComponent: 0)
+        let assignedTo = roomies[selectedRow]
+        
+        
+        let docRef = db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("texts").document()
+
         // TO DO: add roomate picker so can schedule texts for specific phone number
         let textData : [String: Any] = [
             "title" : textTitle as Any,
             "date" : Timestamp(date: date!),
-            "note" : note as Any
+            "note" : note as Any,
+            "assignedTo" : assignedTo as String
         ]
         
         docRef.setData(textData) {

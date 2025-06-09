@@ -28,19 +28,19 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
     var roomies : [Person] = []
 
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var householdName: UITextField!
+    
+    @IBOutlet weak var pageTitle: UILabel!
+    @IBOutlet weak var joinCode: UILabel!
     
     @IBOutlet weak var Add: UIButton!
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        householdName.borderStyle = .none
-        
+                
         tableView.dataSource = self
         tableView.delegate = self
-        
-        householdName.font = UIFont.systemFont(ofSize: 30, weight: .bold)
-        householdName.placeholder = "Household Name"
+        pageTitle.font = UIFont.systemFont(ofSize: 30, weight: .bold)
+        joinCode.font = UIFont.systemFont(ofSize: 30)
+        joinCode.text = "Join Code: \(UserDefaults.standard.string(forKey: "householdID")!.prefix(6))"
 
         Add.layer.cornerRadius = Add.frame.width/2
         Add.layer.masksToBounds = true
@@ -48,7 +48,7 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
         tableView.allowsSelection = false
         tableView.isScrollEnabled = true
         
-        db.collection("roomies").order(by:"name").addSnapshotListener {
+        db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies").order(by:"name").addSnapshotListener {
             snapshot, error in
             guard let documents = snapshot?.documents, error == nil else {
                 print("error occured when fetching texts: \(error?.localizedDescription ?? "default error")")
@@ -84,15 +84,6 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
             }
         }
     }
-    
-    
-    
-    @IBAction func changedName(_ sender: UITextField) {
-        if let text = sender.text, !text.isEmpty {
-            householdName.text = sender.text
-        }
-    }
-    
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         roomies.count
@@ -112,6 +103,41 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
         return cell
     }
     
+    // configuring delete
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            let roomieToDelete = roomies[indexPath.row]
+            
+            // remove firebase
+            deleteFromFireStore(roomie: roomieToDelete)
+            
+            // remove locally
+            roomies.remove(at: indexPath.row)
+            tableView.reloadData()
+        }
+    }
+    
+    func deleteFromFireStore(roomie: Person) {
+        db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies").whereField("name", isEqualTo: roomie.name).whereField("phone", isEqualTo: roomie.phoneNum).getDocuments { (snapshot, err) in
+            if let err = err {
+                print("Error getting documents: \(err)")
+                return
+            }
+            
+            guard let documents = snapshot?.documents, let doc = documents.first else {
+                print("Couldn't find text to delete")
+                return
+            }
+            doc.reference.delete { error in
+                if let error = error {
+                    print("Failed to delete chore: \(error.localizedDescription)")
+                } else {
+                    print("Chore deleted from Firestore.")
+                }
+            }
+        }
+    }
+    
     @IBAction func AddAction(_ sender: Any) {
         performSegue(withIdentifier: "toHouseholdDetails", sender: self)
         
@@ -123,12 +149,5 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
             
             }
         }
-    
-//    modalVC.onAddRoomie = {
-//        [weak self] name, phone, color in
-//        let newPerson = Person(name: name, phoneNum: phone, color: color ?? .black)
-//        self?.roomies.append(newPerson)
-//        self?.tableView.reloadData()
-//    }
     
 }
