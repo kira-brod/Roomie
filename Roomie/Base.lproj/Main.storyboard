@@ -1285,11 +1285,11 @@
             </objects>
             <point key="canvasLocation" x="81.679389312977094" y="3.5211267605633805"/>
         </scene>
-        <!--Household-->
+        <!--Navigation Controller-->
         <scene sceneID="kfo-Za-5wl">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="gbz-Ec-ZSp" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Household" image="house" catalog="system" id="xnv-jg-Te2"/>
+                    <tabBarItem key="tabBarItem" title="" image="house" catalog="system" id="xnv-jg-Te2"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="HcY-XQ-cyH">
                         <rect key="frame" x="0.0" y="59" width="393" height="44"/>
@@ -1304,11 +1304,11 @@
             </objects>
             <point key="canvasLocation" x="1498" y="727"/>
         </scene>
-        <!--Navigation Controller-->
+        <!--Groceries-->
         <scene sceneID="Oik-1T-hZC">
             <objects>
                 <navigationController automaticallyAdjustsScrollViewInsets="NO" id="VHv-cP-bdq" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="" image="bag" catalog="system" id="V65-zc-Uel"/>
+                    <tabBarItem key="tabBarItem" title="Groceries" image="bag" catalog="system" id="V65-zc-Uel"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="3Qq-ri-SQx">
                         <rect key="frame" x="0.0" y="59" width="393" height="44"/>
@@ -1406,7 +1406,7 @@
     </scenes>
     <inferredMetricsTieBreakers>
         <segue reference="Mns-1D-3ou"/>
-        <segue reference="Fof-uZ-1Bt"/>
+        <segue reference="b0Q-5b-Lhk"/>
         <segue reference="EAk-1L-h8N"/>
     </inferredMetricsTieBreakers>
     <resources>

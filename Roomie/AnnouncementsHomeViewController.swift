@@ -168,7 +168,7 @@ class AnnouncementsHomeViewController: UIViewController, UITableViewDelegate, UI
         }
         
         //MARK: Roomies
-        db.collection("households").document("1C12762C-9083-43BC-B127-FB2FDEE942B3").collection("roomies").addSnapshotListener { snapshot, error in
+        db.collection("households").document(Singleton.shared.householdID).collection("roomies").addSnapshotListener { snapshot, error in
             guard let documents = snapshot?.documents, error == nil else {
                 print("Failed to fetch roomies: \(error?.localizedDescription ?? "Unknown error")")
                 return
@@ -180,11 +180,11 @@ class AnnouncementsHomeViewController: UIViewController, UITableViewDelegate, UI
             for doc in documents {
                 let data = doc.data()
                 guard
-                    let email = data["email"] as? String,
+//                    let email = data["email"] as? String,
                     let phone = data["phone"] as? String,
                     let name = data["name"] as? String,
-                    let color = data["color"] as? String,
-                    let joinedAt = data["joinedAt"] as? Timestamp
+                    let color = data["color"] as? String
+//                    let joinedAt = data["joinedAt"] as? Timestamp
                 else {
                     continue
                 }
@@ -194,8 +194,8 @@ class AnnouncementsHomeViewController: UIViewController, UITableViewDelegate, UI
                     name: name,
                     phone: phone,
                     color: color,
-                    email: email,
-                    joinedAt: joinedAt
+//                    email: email,
+//                    joinedAt: joinedAt
                 )
 
                 roomies.append(roomie)

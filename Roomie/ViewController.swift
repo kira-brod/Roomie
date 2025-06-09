@@ -11,8 +11,8 @@ struct Roomie {
     var name : String
     var phone : String
     var color : String
-    var email: String
-    var joinedAt: Timestamp
+//    var email: String
+//    var joinedAt: Timestamp
 }
 
 
@@ -37,6 +37,7 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
     var event : Event?
     var roomies : [Roomie] = []
     var roommates : [String] = []
+    var householdID = ""
     
     var stringTableData1: DataTable!
     
@@ -116,9 +117,11 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
         let today = Calendar.current.dateComponents([.year, .month, .day], from: Date())
         selectedDate = today
         
+        print("household: \(Singleton.shared.householdID)")
+        
         
         //MARK: Roomies
-        db.collection("households").document("1C12762C-9083-43BC-B127-FB2FDEE942B3").collection("roomies").addSnapshotListener { snapshot, error in
+        db.collection("households").document(Singleton.shared.householdID).collection("roomies").addSnapshotListener { snapshot, error in
             guard let documents = snapshot?.documents, error == nil else {
                 print("Failed to fetch roomies: \(error?.localizedDescription ?? "Unknown error")")
                 return
@@ -132,11 +135,11 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
             for doc in documents {
                 let data = doc.data()
                 guard
-                    let email = data["email"] as? String,
+//                    let email = data["email"] as? String,
                     let phone = data["phone"] as? String,
                     let name = data["name"] as? String,
-                    let color = data["color"] as? String,
-                    let joinedAt = data["joinedAt"] as? Timestamp
+                    let color = data["color"] as? String
+//                    let joinedAt = data["joinedAt"] as? Timestamp
                 else {
                     continue
                 }
@@ -146,8 +149,8 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
                     name: name,
                     phone: phone,
                     color: color,
-                    email: email,
-                    joinedAt: joinedAt
+//                    email: email,
+//                    joinedAt: joinedAt
                 )
 
                 roomies.append(roomie)

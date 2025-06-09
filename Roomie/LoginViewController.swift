@@ -9,6 +9,13 @@ import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
+class Singleton {
+    static let shared = Singleton()
+    var householdID: String = ""
+
+    private init() { }
+}
+
 class LoginViewController: UIViewController {
     
     var isPasswordHidden : Bool = true
@@ -17,6 +24,8 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var emailField: UITextField!
     @IBOutlet weak var passField: UITextField!
     @IBOutlet weak var loginBtn: UIButton!
+    
+    var householdID = ""
     
     @IBAction func login(_ sender: Any) {
         guard let email = emailField.text, !email.isEmpty, let password = passField.text, !password.isEmpty else {
@@ -168,6 +177,10 @@ class LoginViewController: UIViewController {
         let householdID = UUID().uuidString
         let joinCode = String(UUID().uuidString.prefix(6))
         
+        self.householdID = householdID
+        Singleton.shared.householdID = householdID
+        print("household: \(householdID)")
+        
         // Create the household document
         db.collection("households").document(householdID).setData([
             "joinCode": joinCode
@@ -278,6 +291,13 @@ class LoginViewController: UIViewController {
                 completion(found)
             }
         }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "goToHome" {
+                let controller = segue.destination as? ViewController
+                controller?.householdID = householdID
+            }
     }
         
         
