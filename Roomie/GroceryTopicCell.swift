@@ -5,30 +5,28 @@ import FirebaseFirestore
 class GroceryTopicCell: UITableViewCell {
     @IBOutlet weak var contentLabel: UILabel!
     @IBOutlet weak var checkBox: UIButton!
-    @IBOutlet weak var deleteButton: UIButton!
-    @IBOutlet weak var lineImageView: UIImageView!
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
         contentLabel.isUserInteractionEnabled = false
-        lineImageView.isHidden = true
     }
 }
 
-// MARK: - GroceryItem Struct
 struct GroceryItem {
     var id: String?
     var name: String
     var quantity: Int
     var isChecked: Bool
     var assignedRoomie: String
+    var createdAt: Date
     
     func toDictionary() -> [String: Any] {
         return [
             "name": name,
             "quantity": quantity,
             "isChecked": isChecked,
-            "assignedRoomie": assignedRoomie
+            "assignedRoomie": assignedRoomie,
+            "createdAt": Timestamp(date: createdAt)
         ]
     }
     
@@ -40,6 +38,14 @@ struct GroceryItem {
             return nil
         }
         
-        return GroceryItem(id: id, name: name, quantity: quantity, isChecked: isChecked, assignedRoomie: assignedRoomie)
+
+        let createdAt: Date
+        if let timestamp = data["createdAt"] as? Timestamp {
+            createdAt = timestamp.dateValue()
+        } else {
+            createdAt = Date()
+        }
+        
+        return GroceryItem(id: id, name: name, quantity: quantity, isChecked: isChecked, assignedRoomie: assignedRoomie, createdAt: createdAt)
     }
 }

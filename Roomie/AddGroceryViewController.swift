@@ -1,12 +1,11 @@
 import UIKit
 import FirebaseFirestore
 
-class AddGroceryViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate {
-
+class AddGroceryViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource, UITextFieldDelegate, UITextViewDelegate {
     @IBOutlet weak var nameTextField: UITextField!
-    @IBOutlet weak var quantityTextField: UITextField!
-    @IBOutlet weak var minusButton: UIButton!
+    @IBOutlet weak var quantityTextView: UITextView!
     @IBOutlet weak var plusButton: UIButton!
+    @IBOutlet weak var minusButton: UIButton!
     @IBOutlet weak var assigneePickerView: UIPickerView!
     @IBOutlet weak var assignGroceryButton: UIButton!
     @IBOutlet weak var cancelButton: UIButton!
@@ -25,13 +24,58 @@ class AddGroceryViewController: UIViewController, UIPickerViewDelegate, UIPicker
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        quantityTextField.text = "1"
-        quantityTextField.delegate = self
-        quantityTextField.keyboardType = .numberPad
+        quantityTextView.delegate = self
+        quantityTextView.keyboardType = .numberPad
+        quantityTextView.layer.cornerRadius = quantityTextView.frame.width / 2
+        quantityTextView.layer.borderColor = UIColor.systemGray4.cgColor
+        quantityTextView.layer.borderWidth = 2.0
+        quantityTextView.backgroundColor = UIColor.white
+        quantityTextView.font = UIFont.systemFont(ofSize: 92, weight: .bold)
+        quantityTextView.textAlignment = .center
+        quantityTextView.textColor = .label
+        quantityTextView.isScrollEnabled = false
+        quantityTextView.showsVerticalScrollIndicator = false
+        quantityTextView.showsHorizontalScrollIndicator = false
+        quantityTextView.textContainerInset = UIEdgeInsets.zero
+        quantityTextView.textContainer.lineFragmentPadding = 0
+        quantityTextView.contentInset = UIEdgeInsets.zero
+        quantityTextView.layoutIfNeeded()
+        centerTextVertically()
         assigneePickerView.delegate = self
         assigneePickerView.dataSource = self
-
         loadRoomies()
+    }
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        quantityTextView.layer.cornerRadius = quantityTextView.frame.width / 2
+        centerTextVertically()
+    }
+
+    func centerTextVertically() {
+        let textSize = quantityTextView.sizeThatFits(CGSize(width: quantityTextView.frame.width, height: CGFloat.greatestFiniteMagnitude))
+        let topOffset = max(0, (quantityTextView.frame.height - textSize.height) / 2)
+        quantityTextView.contentInset = UIEdgeInsets(top: topOffset, left: 0, bottom: 0, right: 0)
+    }
+
+
+    @IBAction func minusButtonTapped(_ sender: UIButton) {
+        let current = Int(quantityTextView.text ?? "1") ?? 1
+        if current > 1 {
+            quantityTextView.text = "\(current - 1)"
+            centerTextVertically()
+        }
+    }
+
+    @IBAction func plusButtonTapped(_ sender: UIButton) {
+        let current = Int(quantityTextView.text ?? "1") ?? 1
+        if current < 12 {
+            quantityTextView.text = "\(current + 1)"
+            centerTextVertically()
+        }
+    }
+
+    func textViewDidChange(_ textView: UITextView) {
+        centerTextVertically()
     }
     
     func loadRoomies() {
@@ -84,33 +128,19 @@ class AddGroceryViewController: UIViewController, UIPickerViewDelegate, UIPicker
         }
     }
 
-    // MARK: - Quantity Controls (KEEP THESE UNCHANGED)
-    @IBAction func minusButtonTapped(_ sender: UIButton) {
-        let current = Int(quantityTextField.text ?? "1") ?? 1
-        if current > 1 {
-            quantityTextField.text = "\(current - 1)"
-        }
-    }
-
-    @IBAction func plusButtonTapped(_ sender: UIButton) {
-        let current = Int(quantityTextField.text ?? "1") ?? 1
-        if current < 12 {
-            quantityTextField.text = "\(current + 1)"
-        }
-    }
-
-    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         let allowedCharacters = CharacterSet.decimalDigits
-        let characterSet = CharacterSet(charactersIn: string)
+        let characterSet = CharacterSet(charactersIn: text)
         if !allowedCharacters.isSuperset(of: characterSet) { return false }
-        let newString = (textField.text! as NSString).replacingCharacters(in: range, with: string)
-        if let value = Int(newString), value >= 1 && value <= 10 {
+        
+        let newString = (textView.text! as NSString).replacingCharacters(in: range, with: text)
+        if let value = Int(newString), value >= 1 && value <= 12 {
             return true
         }
         return newString.isEmpty
     }
 
-    // MARK: - UIPickerView (UPDATE THESE METHODS)
+
     func numberOfComponents(in pickerView: UIPickerView) -> Int { 1 }
     
     func pickerView(_ pickerView: UIPickerView, numberOfRowsInComponent component: Int) -> Int {
@@ -125,13 +155,13 @@ class AddGroceryViewController: UIViewController, UIPickerViewDelegate, UIPicker
         selectedAssignee = Roomies[row].name
     }
 
-    // MARK: - Assign & Cancel (ADD ERROR HANDLING)
+
     @IBAction func assignGroceryButtonTapped(_ sender: UIButton) {
         guard let name = nameTextField.text, !name.isEmpty,
-              let quantityText = quantityTextField.text, let quantity = Int(quantityText),
+              let quantityText = quantityTextView.text, let quantity = Int(quantityText),
               let assignee = selectedAssignee else {
             if Roomies.isEmpty {
-                let alert = UIAlertController(title: "No Roommates",
+                let alert = UIAlertController(title: "No Roommate",
                                             message: "Please add roommates first in the Households section.",
                                             preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
