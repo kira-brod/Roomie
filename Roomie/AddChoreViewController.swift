@@ -21,15 +21,7 @@ struct Chore {
 
 class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDataSource  {
     let db = Firestore.firestore()
-    let roommates = ["Roomie 1", "Roomie 2", "Roomie 3", "Roomie 4", "Roomie 5"]
-
-    let roommateColors: [String: UIColor] = [
-        "Roomie 1": .red,
-        "Roomie 2": .blue,
-        "Roomie 3": .green,
-        "Roomie 4": .yellow,
-        "Roomie 5": .purple
-    ]
+    var roommates: [String] = []
 
     @IBAction func cancel(_ sender: Any) {
         dismiss(animated: true, completion: nil)
@@ -38,12 +30,38 @@ class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
     @IBOutlet weak var choreName: UITextField!
     @IBOutlet weak var choreDate: UIDatePicker!
     
+    let colorPalette: [UIColor] = [.red, .blue, .green, .yellow, .purple, .orange, .cyan]
+
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         Roomie.delegate = self
         Roomie.dataSource = self
-
+        fetchRoommatesFromFirestore()
     }
+
+    func fetchRoommatesFromFirestore() {
+        guard let householdID = UserDefaults.standard.string(forKey: "householdID") else { return }
+
+        db.collection("households").document(householdID).collection("roomies").getDocuments { snapshot, error in
+            if let error = error {
+                print("Failed to fetch roommates: \(error)")
+                return
+            }
+
+            self.roommates = snapshot?.documents.compactMap { $0.data()["name"] as? String } ?? []
+            DispatchQueue.main.async {
+                self.Roomie.reloadAllComponents()
+            }
+        }
+    }
+    func colorForRoommate(_ name: String) -> UIColor {
+        if let index = roommates.firstIndex(of: name) {
+            return colorPalette[index % colorPalette.count]
+        }
+        return .gray
+    }
+
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
     }
@@ -67,7 +85,7 @@ class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
         let date = choreDate.date
         let selectedRow = Roomie.selectedRow(inComponent: 0)
         let assignedTo = roommates[selectedRow]
-        let color = roommateColors[assignedTo] ?? UIColor.gray
+        let color = colorForRoommate(assignedTo)
         let notes = choreNotes.text
         let colorHex = color.toHexString()
 
@@ -94,6 +112,7 @@ class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
         }
         dismiss(animated: true)
     }
+    
     
 
 
