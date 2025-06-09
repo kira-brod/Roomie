@@ -280,6 +280,8 @@ class LoginViewController: UIViewController {
                 roomieDoc.getDocument { snapshot, _ in
                     if snapshot?.exists == true {
                         UserDefaults.standard.set(doc.documentID, forKey: "householdID")
+                        self.householdID = doc.documentID
+                        Singleton.shared.householdID = self.householdID
                         print("Household found for user")
                         found = true
                     }
