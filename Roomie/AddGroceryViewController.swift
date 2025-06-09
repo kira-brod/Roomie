@@ -30,7 +30,7 @@ class AddGroceryViewController: UIViewController, UIPickerViewDelegate, UIPicker
         quantityTextView.layer.borderColor = UIColor.systemGray4.cgColor
         quantityTextView.layer.borderWidth = 2.0
         quantityTextView.backgroundColor = UIColor.white
-        quantityTextView.font = UIFont.systemFont(ofSize: 92, weight: .bold)
+        quantityTextView.font = UIFont.systemFont(ofSize: 95, weight: .bold)
         quantityTextView.textAlignment = .center
         quantityTextView.textColor = .label
         quantityTextView.isScrollEnabled = false
@@ -162,7 +162,7 @@ class AddGroceryViewController: UIViewController, UIPickerViewDelegate, UIPicker
               let assignee = selectedAssignee else {
             if Roomies.isEmpty {
                 let alert = UIAlertController(title: "No Roommate",
-                                            message: "Please add roommates first in the Households section.",
+                                            message: "Please add roommates in the Households section.",
                                             preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
                 present(alert, animated: true)
