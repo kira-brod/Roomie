@@ -16,7 +16,7 @@ class Singleton {
     private init() { }
 }
 
-class LoginViewController: UIViewController {
+class LoginViewController: UIViewController, UITextFieldDelegate {
     
     var isPasswordHidden : Bool = true
     var eyeImage: UIImageView!
@@ -28,12 +28,22 @@ class LoginViewController: UIViewController {
     var householdID = ""
     
     @IBAction func login(_ sender: Any) {
-        guard let email = emailField.text, !email.isEmpty, let password = passField.text, !password.isEmpty else {
+        
+        let email = emailField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        
+        let password = passField.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        
+        guard !email.isEmpty, !password.isEmpty else {
             DispatchQueue.main.async {
                 self.showAlert(title: "Error", message: "All login fields must be filled out.")
             }
             return
         }
+        
+        guard email.contains("@"), password.count >= 6 else {
+                self.showAlert(title: "Invalid Input", message: "Please enter a valid email and a password with at least 6 characters.")
+                return
+            }
         
         Auth.auth().signIn(withEmail: email, password: password) { result, error in
             if let error = error {
@@ -79,6 +89,7 @@ class LoginViewController: UIViewController {
                         self.showAlert(title: "Error", message: error.localizedDescription)
                     }
                 } else {
+                    print(result)
                     DispatchQueue.main.async {
                         self.promptForName { name in
                             guard let name = name else {
@@ -106,6 +117,7 @@ class LoginViewController: UIViewController {
         loginBtn.layer.cornerRadius = 10
         
         passField.isSecureTextEntry = true
+        passField.delegate = self
         
         let eyeButton = UIButton(type: .custom)
         eyeButton.setImage(UIImage(systemName: "eye"), for: .normal)
@@ -121,22 +133,43 @@ class LoginViewController: UIViewController {
         view.addGestureRecognizer(keyboardtap)
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        passField.becomeFirstResponder()
+    }
+    
     @objc func togglePasswordVisibility() {
         isPasswordHidden.toggle()
+        
+//        let wasFirstResponder = passField.isFirstResponder
+//           let selectedRange = passField.selectedTextRange
+
+           passField.isSecureTextEntry = isPasswordHidden
+
+//           if wasFirstResponder {
+//               passField.becomeFirstResponder()
+//               if let selectedRange = selectedRange {
+//                   passField.selectedTextRange = selectedRange
+//               }
+//           }
+        
+//        passField.resignFirstResponder()
+//        passField.isSecureTextEntry = isPasswordHidden
+//        passField.becomeFirstResponder()
 
         
-        let wasFirstResponder = passField.isFirstResponder
-        let selectedRange = passField.selectedTextRange
-
-        passField.isSecureTextEntry = isPasswordHidden
-
-        
-        if wasFirstResponder {
-            passField.becomeFirstResponder()
-            if let selectedRange = selectedRange {
-                passField.selectedTextRange = selectedRange
-            }
-        }
+//        let wasFirstResponder = passField.isFirstResponder
+//        let selectedRange = passField.selectedTextRange
+//
+//        passField.isSecureTextEntry = isPasswordHidden
+//
+//        
+//        if wasFirstResponder {
+//            passField.becomeFirstResponder()
+//            if let selectedRange = selectedRange {
+//                passField.selectedTextRange = selectedRange
+//            }
+//        }
 
         let imgName = isPasswordHidden ? "eye" : "eye.slash"
         (passField.rightView as? UIButton)?.setImage(UIImage(systemName: imgName), for: .normal)
