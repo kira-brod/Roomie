@@ -17,8 +17,6 @@ class TableCell: UITableViewCell {
 
 class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, MFMessageComposeViewControllerDelegate {
    
-    
-    
     let db = Firestore.firestore()
     
     struct Person {
@@ -34,6 +32,7 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
     
     @IBOutlet weak var pageTitle: UILabel!
     @IBOutlet weak var joinCode: UILabel!
+    @IBOutlet weak var imageView: UIImageView!
     
     @IBOutlet weak var Add: UIButton!
     override func viewDidLoad() {
@@ -81,6 +80,7 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
             }
             
             self.roomies = dbRoomies
+            self.toggleUI()
             self.tableView.reloadData()
         }
         
@@ -95,6 +95,12 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
             default : return .gray
             }
         }
+    }
+    
+    func toggleUI() {
+        let isEmpty = roomies.isEmpty
+        tableView.isHidden = isEmpty
+        imageView.isHidden = !isEmpty
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -126,6 +132,7 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
             // remove locally
             roomies.remove(at: indexPath.row)
             tableView.reloadData()
+            
         }
     }
     
@@ -170,19 +177,39 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
             }
             
             guard let documents = snapshot?.documents, let doc = documents.first else {
-                print("Couldn't find text to delete")
+                print("Couldn't find roomie to delete")
                 return
             }
             doc.reference.delete { error in
                 if let error = error {
-                    print("Failed to delete chore: \(error.localizedDescription)")
+                    print("Failed to delete roomie: \(error.localizedDescription)")
                 } else {
-                    print("Chore deleted from Firestore.")
+                    print("Roomie deleted from Firestore.")
                 }
             }
         }
         
         // delete all notifs associated with that roomie
+        db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("texts").whereField("assignedTo", isEqualTo: roomie.name).getDocuments{
+            (snapshot, err) in
+            if let err = err {
+                print("Error getting documents: \(err.localizedDescription)")
+                return
+            }
+            guard let documents = snapshot?.documents else {
+                return
+            }
+            for doc in documents {
+                doc.reference.delete { error in
+                    if let error = error {
+                        print("Failed to delete text: \(error.localizedDescription)")
+                    } else {
+                        print("Deleted text with ID: \(doc.documentID)")
+                    }
+                }
+            }
+        }
+        self.toggleUI()
     }
     
     @IBAction func AddAction(_ sender: Any) {

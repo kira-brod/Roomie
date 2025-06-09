@@ -93,6 +93,7 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
         
         if let name = textObj?.assignedTo, let color = roomieColors[name] {
             cell.timeLabel.textColor = color
+           
                 
             cell.contentView.layer.sublayers?.removeAll(where: { $0.name == "leftBorder" })
             let leftBorder = CALayer()
@@ -122,6 +123,7 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
                 texts[date] = textArr
             }
             dateKeys = texts.keys.sorted()
+            toggleUI()
             tableView.reloadData()
         }
     }
@@ -147,19 +149,26 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
             }
         }
     }
-    
 
     @IBOutlet weak var H1: UILabel!
     @IBOutlet weak var Add: UIButton!
     @IBOutlet weak var tableView: UITableView!
-    
+    @IBOutlet weak var imageView: UIImageView!
     // key -> date,
     var texts : [Date : [Text]] = [:]
     var dateKeys : [Date] = []
     
+    func toggleUI() {
+        let isEmpty = texts.values.flatMap { $0
+        }.isEmpty
+        tableView.isHidden = isEmpty
+        imageView.isHidden = !isEmpty
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // UI styling
+        self.toggleUI()
         H1.font = UIFont.systemFont(ofSize: 30, weight: .bold)
         Add.layer.cornerRadius = Add.frame.width/2
         Add.layer.masksToBounds = true
@@ -169,8 +178,14 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
         tableView.separatorStyle = .none
         tableView.isScrollEnabled = true
         tableView.allowsSelection = false
-        
-        
+    }
+    
+    override func viewDidAppear(_ animated : Bool) {
+        super.viewDidAppear(animated)
+        fetchRoomiesAndListenForTexts()
+    }
+    
+    func fetchRoomiesAndListenForTexts() {
         // fetching all roomies and colors
         db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies").addSnapshotListener {snapshot, error in
             if let docs = snapshot?.documents {
@@ -180,64 +195,71 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
                     self.roomieColors[name] = self.convertColor(from: color)
                 }
             }
-            // fetching from firebase
-            self.db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("texts").order(by:"date")
-                .addSnapshotListener {
-                    snapshot, error in
-                    
-                    guard let documents = snapshot?.documents, error == nil else {
-                        print("error occured when fetching texts: \(error?.localizedDescription ?? "default error")")
-                        return
-                        
-                    }
-                    // configuring the arrays
-                    var texts : [Date : [Text]] = [:]
-                    for doc in documents {
-                        let data = doc.data()
-                        guard
-                            let title = data["title"] as? String,
-                                let note = data["note"] as? String,
-                            let date = data["date"] as? Timestamp,
-                        let assignedTo = data["assignedTo"] as? String,
-                            let notifID = data["notificationID"] as? String
-                        else {
-                            continue
-                        }
-                        // filtering out overdue texts
-                        let dateVal = date.dateValue()
-                        if dateVal < Date() {
-                            let expiredText = Text(
-                                        title: title,
-                                        time: dateVal,
-                                        note: note,
-                                        assignedTo: assignedTo,
-                                        notificationID: notifID
-                                    )
-                            self.deleteFromFireStore(text: expiredText)
-                            continue
-                        }
-                        
-                        // adding to local text feild
-                        let newText = Text(title: title, time: date.dateValue(), note: note, assignedTo: assignedTo, notificationID: notifID)
-    
-                        let calendar = Calendar.current
-                        let componentsDate = calendar.dateComponents([.year, .month, .day], from: dateVal)
-                        let dateKey = calendar.date(from: componentsDate) ?? Date()
-                        
-                        var sortedTexts = texts[dateKey] ?? []
-        
-                        sortedTexts.append(newText)
-                        sortedTexts.sort{ $0.time < $1.time}
-                        texts[dateKey] = sortedTexts
-                    }
-                    
-                    self.texts = texts
-                    self.dateKeys = texts.keys.sorted()
-                    DispatchQueue.main.async {
-                                   self.tableView.reloadData()
-                               }
-            }
+            self.listenForTexts()
         }
+    }
+    
+    func listenForTexts() {
+        // fetching from firebase
+        self.db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("texts").order(by:"date")
+            .addSnapshotListener {
+                snapshot, error in
+                
+                guard let documents = snapshot?.documents, error == nil else {
+                    print("error occured when fetching texts: \(error?.localizedDescription ?? "default error")")
+                    return
+                    
+                }
+                // configuring the arrays
+                var texts : [Date : [Text]] = [:]
+                for doc in documents {
+                    let data = doc.data()
+                    guard
+                        let title = data["title"] as? String,
+                            let note = data["note"] as? String,
+                        let date = data["date"] as? Timestamp,
+                    let assignedTo = data["assignedTo"] as? String,
+                        let notifID = data["notificationID"] as? String
+                    else {
+                        continue
+                    }
+                    // filtering out overdue texts
+                    let dateVal = date.dateValue()
+                    if dateVal < Date() {
+                        let expiredText = Text(
+                                    title: title,
+                                    time: dateVal,
+                                    note: note,
+                                    assignedTo: assignedTo,
+                                    notificationID: notifID
+                                )
+                        self.deleteFromFireStore(text: expiredText)
+                        continue
+                    }
+                    
+                    // adding to local text feild
+                    let newText = Text(title: title, time: date.dateValue(), note: note, assignedTo: assignedTo, notificationID: notifID)
+
+                    let calendar = Calendar.current
+                    let componentsDate = calendar.dateComponents([.year, .month, .day], from: dateVal)
+                    let dateKey = calendar.date(from: componentsDate) ?? Date()
+                    
+                    var sortedTexts = texts[dateKey] ?? []
+    
+                    sortedTexts.append(newText)
+                    sortedTexts.sort{ $0.time < $1.time}
+                    texts[dateKey] = sortedTexts
+                }
+                
+                self.texts = texts
+                self.dateKeys = texts.keys.sorted()
+                
+                DispatchQueue.main.async {
+                    self.toggleUI()
+                               self.tableView.reloadData()
+                           }
+        }
+        
     }
     
     func convertColor(from name: String) -> UIColor {

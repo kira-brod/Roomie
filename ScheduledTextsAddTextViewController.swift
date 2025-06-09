@@ -102,6 +102,12 @@ class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate,
 //    var onAddText: ((String, Date, String)-> Void)?
     
     @IBAction func addText(_ sender: UIButton) {
+        if roomies.isEmpty {
+            let alert = UIAlertController(title: "Error", message: "Add roomies to your household.", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+            self.present(alert, animated: true)
+            return
+        }
         let noteText = Notes.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let titleText = reminderTitle.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         
