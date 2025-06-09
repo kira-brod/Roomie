@@ -8,6 +8,7 @@
 import UIKit
 import FirebaseFirestore
 import FirebaseAuth
+import UserNotifications
 
 class TextCell: UITableViewCell {
     @IBOutlet weak var timeLabel: UILabel!
@@ -20,12 +21,12 @@ struct Text {
     let time: Date
     let note : String
     let assignedTo : String
+    let notificationID : String
 }
 
 class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
     var roomieColors : [String : UIColor] = [:]
-    
     let db = Firestore.firestore()
     
     func numberOfSections(in: UITableView) -> Int {
@@ -99,25 +100,7 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
             leftBorder.frame = CGRect(x: 0, y: 0, width: 4, height: cell.contentView.frame.height)
             cell.contentView.layer.addSublayer(leftBorder)
         }
-        
-//        let roomiesRef =  db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies")
-//        roomiesRef.whereField("name", isEqualTo: name).getDocuments { (snapshot, err) in
-//            if let err = err {
-//                print("Error getting documents: \(err)")
-//                return
-//            }
-//            guard let documents = snapshot?.documents, let doc = documents.first else {
-//                print("No roomie found with name \(name ?? "")")
-//                return
-//            }
-//            
-//            if let color = doc.data()["color"] as? String {
-//                cell.timeLabel.textColor = self.convertColor(from : color)
-        
-            
         cell.timeLabel.text = timeStr
-        
-        
         return cell
     }
     
@@ -158,6 +141,7 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
                 if let error = error {
                     print("Failed to delete chore: \(error.localizedDescription)")
                 } else {
+                    UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [text.notificationID])
                     print("Chore deleted from Firestore.")
                 }
             }
@@ -175,9 +159,8 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        // UI styling
         H1.font = UIFont.systemFont(ofSize: 30, weight: .bold)
-        
         Add.layer.cornerRadius = Add.frame.width/2
         Add.layer.masksToBounds = true
         Add.titleLabel?.font = UIFont.systemFont(ofSize: 39, weight: .bold)
@@ -185,6 +168,7 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
         tableView.dataSource = self
         tableView.separatorStyle = .none
         tableView.isScrollEnabled = true
+        tableView.allowsSelection = false
         
         
         // fetching all roomies and colors
@@ -200,6 +184,7 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
             self.db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("texts").order(by:"date")
                 .addSnapshotListener {
                     snapshot, error in
+                    
                     guard let documents = snapshot?.documents, error == nil else {
                         print("error occured when fetching texts: \(error?.localizedDescription ?? "default error")")
                         return
@@ -213,12 +198,13 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
                             let title = data["title"] as? String,
                                 let note = data["note"] as? String,
                             let date = data["date"] as? Timestamp,
-                        let assignedTo = data["assignedTo"] as? String else {
+                        let assignedTo = data["assignedTo"] as? String,
+                            let notifID = data["notificationID"] as? String
+                        else {
                             continue
                         }
-                        
-                        let newText = Text(title: title, time: date.dateValue(), note: note, assignedTo: assignedTo)
-                        
+                        let newText = Text(title: title, time: date.dateValue(), note: note, assignedTo: assignedTo, notificationID: notifID)
+    
                         let calendar = Calendar.current
                         let componentsDate = calendar.dateComponents([.year, .month, .day], from: date.dateValue())
                         let dateKey = calendar.date(from: componentsDate) ?? Date()

@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseFirestore
+import UserNotifications
 
 class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate, UIPickerViewDelegate, UIPickerViewDataSource{
     
@@ -23,10 +24,12 @@ class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate,
     
     @IBOutlet weak var roomiePicker: UIPickerView!
     
-    var date: Date?
-    var textTitle: String?
-    var note: String?
+//    var date: Date?
+//    var textTitle: String?
+//    var note: String?
     var roomies: [String] = []
+    let notificationCenter = UNUserNotificationCenter.current()
+
     
     
     override func viewDidLoad() {
@@ -42,10 +45,16 @@ class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate,
         roomiePicker.dataSource = self
         Add.layer.cornerRadius = 10
         Cancel.layer.cornerRadius = 10
-
         
+        //configuring notifs authorization
+        notificationCenter.requestAuthorization(options: [.alert, .sound]) {
+            (permissionGranted, error) in
+            if (!permissionGranted) {
+                print("Permission Denied")
+            }
+        }
         
-    db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies").getDocuments { snapshot, error in
+    db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies").addSnapshotListener { snapshot, error in
             if let error = error { return }
             guard let documents = snapshot?.documents else {
                 return
@@ -93,29 +102,78 @@ class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate,
 //    var onAddText: ((String, Date, String)-> Void)?
     
     @IBAction func addText(_ sender: UIButton) {
-        note = Notes.textColor == .lightGray ? "" : Notes.text ?? ""
-        textTitle = reminderTitle.text ?? ""
-        date = datePicker.date
+        let noteText = Notes.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        let titleText = reminderTitle.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        
+        let date = datePicker.date
      
-        if date! < Date() {
+        if date < Date() {
             let alert = UIAlertController(title: "Error", message: "The selected date is in the past.", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            present(alert, animated: true)
+            self.present(alert, animated: true)
             return
         }
         
         let selectedRow = roomiePicker.selectedRow(inComponent: 0)
         let assignedTo = roomies[selectedRow]
         
+        //configuring notification
+        let notificationID = UUID().uuidString
+        notificationCenter.getNotificationSettings { (settings) in
+            if (settings.authorizationStatus == .authorized) {
+                let content = UNMutableNotificationContent()
+                content.title = titleText
+                content.body = noteText
+                content.sound = .default
+                
+                let dateComp = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: date)
+                let trigger = UNCalendarNotificationTrigger(dateMatching: dateComp, repeats: false)
+                let request = UNNotificationRequest(identifier: notificationID, content: content, trigger: trigger)
+                
+                self.notificationCenter.add(request) { (error) in
+                    if (error != nil) {
+                        print("Error adding notification: \(error.debugDescription)")
+                        return
+                    }
+                }
+                
+//                DispatchQueue.main.async {
+//                    let ac = UIAlertController(title: "Notification Scheduled", message: "At \(self.formattedDate(date: date))", preferredStyle: .alert)
+//                    ac.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+//                    self.present(ac, animated: true)
+//                }
+            // user isn't authorized
+            } else {
+                DispatchQueue.main.async {
+                    let ac = UIAlertController(title: "Enable Notofications?", message: "To use this feature you must enable notifications in settings", preferredStyle: .alert)
+                    let goToSettings = UIAlertAction(title: "Settings", style: .default) {
+                        (_) in
+                        guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else {
+                            return
+                        }
+                        
+                        if (UIApplication.shared.canOpenURL(settingsURL)) {
+                            UIApplication.shared.open(settingsURL)
+                        }
+                    }
+                    
+                    ac.addAction(goToSettings)
+                    self.present(ac, animated: true)
+                }
+            }
+        }
         
+        
+        //Making new doc in text collection
         let docRef = db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("texts").document()
 
         // TO DO: add roomate picker so can schedule texts for specific phone number
         let textData : [String: Any] = [
-            "title" : textTitle as Any,
-            "date" : Timestamp(date: date!),
-            "note" : note as Any,
-            "assignedTo" : assignedTo as String
+            "title" : titleText as Any,
+            "date" : Timestamp(date: date),
+            "note" : noteText as Any,
+            "assignedTo" : assignedTo as String,
+            "notificationID" : notificationID
         ]
         
         docRef.setData(textData) {
@@ -124,10 +182,17 @@ class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate,
                 print("error adding text to firestore: \(error.localizedDescription)")
             } else {
                 print("Text added to firestore")
+                DispatchQueue.main.async {
+                    self.dismiss(animated: true)
+                }
             }
         }
-        
-        dismiss(animated: true)
+    }
+    
+    func formattedDate(date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMM y HH:mm"
+        return formatter.string(from: date)
     }
     
     @IBAction func cancel(_ sender: UIButton) {
