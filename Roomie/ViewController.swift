@@ -148,7 +148,7 @@ class ViewController: UIViewController, UICalendarSelectionSingleDateDelegate, U
                     id: doc.documentID,
                     name: name,
                     phone: phone,
-                    color: color,
+                    color: color
 //                    email: email,
 //                    joinedAt: joinedAt
                 )

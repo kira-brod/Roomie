@@ -43,9 +43,9 @@ class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
     func fetchRoommatesFromFirestore() {
         guard let householdID = UserDefaults.standard.string(forKey: "householdID") else { return }
 
-        db.collection("households").document(householdID).collection("memberLogin").getDocuments { snapshot, error in
+        db.collection("households").document(householdID).collection("roomies").getDocuments { snapshot, error in
             if let error = error {
-                print("Failed to fetch roommates: \(error)")
+                print("Failed to fetch roommates from roomies: \(error)")
                 return
             }
 
@@ -54,6 +54,7 @@ class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
                 self.Roomie.reloadAllComponents()
             }
         }
+
     }
     func colorForRoommate(_ name: String) -> UIColor {
         if let index = roommates.firstIndex(of: name) {
