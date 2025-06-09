@@ -41,7 +41,14 @@ class ChoresHomeViewController: UIViewController, UITableViewDataSource, UITable
         tableView.dataSource = self
 
         //update empty state
-        db.collection("chores").order(by: "date").addSnapshotListener { snapshot, error in
+        guard let householdID = UserDefaults.standard.string(forKey: "householdID") else { return }
+        
+        db.collection("households")
+          .document(householdID)
+          .collection("chores")
+          .order(by: "date")
+          .addSnapshotListener { snapshot, error in
+
             guard let documents = snapshot?.documents, error == nil else {
                 print("❌ Failed to fetch chores: \(error?.localizedDescription ?? "Unknown error")")
                 return
@@ -104,14 +111,24 @@ class ChoresHomeViewController: UIViewController, UITableViewDataSource, UITable
         }
     }
     func deleteChoreFromFirestore(chore: Chore) {
-        db.collection("chores").document(chore.id).delete { error in
-            if let error = error {
-                print("Failed to delete chore: \(error.localizedDescription)")
-            } else {
-                print("Chore deleted from Firestore.")
-            }
+        guard let householdID = UserDefaults.standard.string(forKey: "householdID") else {
+            print("❌ No householdID found in UserDefaults")
+            return
         }
+
+        db.collection("households")
+          .document(householdID)
+          .collection("chores")
+          .document(chore.id)
+          .delete { error in
+              if let error = error {
+                  print("❌ Failed to delete chore: \(error.localizedDescription)")
+              } else {
+                  print("✅ Chore deleted from Firestore.")
+              }
+          }
     }
+
 
 
     func numberOfSections(in tableView: UITableView) -> Int {

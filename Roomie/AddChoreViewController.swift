@@ -43,7 +43,7 @@ class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
     func fetchRoommatesFromFirestore() {
         guard let householdID = UserDefaults.standard.string(forKey: "householdID") else { return }
 
-        db.collection("households").document(householdID).collection("roomies").getDocuments { snapshot, error in
+        db.collection("households").document(householdID).collection("memberLogin").getDocuments { snapshot, error in
             if let error = error {
                 print("Failed to fetch roommates: \(error)")
                 return
@@ -89,8 +89,12 @@ class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
         let notes = choreNotes.text
         let colorHex = color.toHexString()
 
-        let db = Firestore.firestore()
-        let docRef = db.collection("chores").document()  
+        guard let householdID = UserDefaults.standard.string(forKey: "householdID") else {
+            print("No householdID found in UserDefaults")
+            return
+        }
+
+        let docRef = db.collection("households").document(householdID).collection("chores").document()
 
         let choreData: [String: Any] = [
             "title": title,
@@ -104,13 +108,11 @@ class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
             if let error = error {
                 print("Error adding chore: \(error.localizedDescription)")
             } else {
-                print("Chore added to Firestore.")
+                print("Chore added under household \(householdID)")
                 let chore = Chore(id: docRef.documentID, title: title, date: date, assignedTo: assignedTo, color: color, notes: notes)
-                
                 self.dismiss(animated: true)
             }
         }
-        dismiss(animated: true)
     }
     
     

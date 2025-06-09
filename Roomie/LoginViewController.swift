@@ -62,18 +62,26 @@ class LoginViewController: UIViewController {
     
     @IBAction func signupTapped(_ sender: Any) {
         guard let email = emailField.text, let password = passField.text else { return }
-        Auth.auth().createUser(withEmail: email, password: password) { result, error in
-            if let error = error {
-                print("Signup error: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    self.showAlert(title: "Error", message: error.localizedDescription)
-                }
-            } else {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    self.promptForHouseholdOption()
+            
+            Auth.auth().createUser(withEmail: email, password: password) { result, error in
+                if let error = error {
+                    print("Signup error: \(error.localizedDescription)")
+                    DispatchQueue.main.async {
+                        self.showAlert(title: "Error", message: error.localizedDescription)
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        self.promptForName { name in
+                            guard let name = name else {
+                                self.showAlert(title: "Missing Name", message: "Please enter your name.")
+                                return
+                            }
+                            UserDefaults.standard.set(name, forKey: "userName")
+                            self.promptForHouseholdOption()
+                        }
+                    }
                 }
             }
-        }
     }
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -90,21 +98,15 @@ class LoginViewController: UIViewController {
         
         passField.isSecureTextEntry = true
         
-        eyeImage = UIImageView(image: UIImage(systemName: "eye"))
-        eyeImage.tintColor = .gray
-        eyeImage.isUserInteractionEnabled = true
-        
-        
-        let containerView = UIView(frame: CGRect(x: 0, y: 0, width: 40, height: 20))
-        eyeImage.frame = CGRect(x: 5, y:0, width: 30, height: 20)
-        containerView.addSubview(eyeImage)
-        passField.rightView = containerView
+        let eyeButton = UIButton(type: .custom)
+        eyeButton.setImage(UIImage(systemName: "eye"), for: .normal)
+        eyeButton.tintColor = .gray
+        eyeButton.frame = CGRect(x: 0, y: 0, width: 30, height: 30)
+        eyeButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
+
+        passField.rightView = eyeButton
         passField.rightViewMode = .always
-        
-        let eyeTap = UITapGestureRecognizer(target: self, action: #selector(togglePasswordVisibility))
-        eyeImage.addGestureRecognizer(eyeTap)
-        
-        
+
         let keyboardtap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
         keyboardtap.cancelsTouchesInView = false
         view.addGestureRecognizer(keyboardtap)
@@ -112,15 +114,25 @@ class LoginViewController: UIViewController {
     
     @objc func togglePasswordVisibility() {
         isPasswordHidden.toggle()
+
+        
+        let wasFirstResponder = passField.isFirstResponder
+        let selectedRange = passField.selectedTextRange
+
         passField.isSecureTextEntry = isPasswordHidden
+
         
-        let currentText = passField.text
-            passField.text = ""
-            passField.text = currentText
-        
+        if wasFirstResponder {
+            passField.becomeFirstResponder()
+            if let selectedRange = selectedRange {
+                passField.selectedTextRange = selectedRange
+            }
+        }
+
         let imgName = isPasswordHidden ? "eye" : "eye.slash"
-        eyeImage.image = UIImage(systemName: imgName)
+        (passField.rightView as? UIButton)?.setImage(UIImage(systemName: imgName), for: .normal)
     }
+
         
         
     @objc func dismissKeyboard() {
@@ -133,7 +145,18 @@ class LoginViewController: UIViewController {
         present(alert, animated: true)
         return
     }
-    
+    func promptForName(completion: @escaping (String?) -> Void) {
+        let alert = UIAlertController(title: "Your Name", message: "Enter your name to continue", preferredStyle: .alert)
+        alert.addTextField { textField in
+            textField.placeholder = "Your name"
+        }
+        alert.addAction(UIAlertAction(title: "Continue", style: .default) { _ in
+            let name = alert.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines)
+            completion(name?.isEmpty == false ? name : nil)
+        })
+        present(alert, animated: true)
+    }
+
     func promptForHouseholdOption() {
         let alert = UIAlertController(title: "Household", message: "Create or join a household?", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Create", style: .default) { _ in self.createHousehold() })
@@ -160,8 +183,10 @@ class LoginViewController: UIViewController {
                 self.db.collection("households").document(householdID)
                     .collection("memberLogin").document(user.uid).setData([
                         "email": user.email ?? "",
+                        "name": UserDefaults.standard.string(forKey: "userName") ?? "",
                         "joinedAt": FieldValue.serverTimestamp()
                     ])
+
             }
             
             // Save householdID locally
@@ -206,6 +231,7 @@ class LoginViewController: UIViewController {
                     self.db.collection("households").document(householdID)
                         .collection("memberLogin").document(user.uid).setData([
                             "email": user.email ?? "",
+                            "name": UserDefaults.standard.string(forKey: "userName") ?? "",
                             "joinedAt": FieldValue.serverTimestamp()
                         ]) { error in
                             if let error = error {
