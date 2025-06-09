@@ -142,6 +142,7 @@ class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate,
 //                    ac.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
 //                    self.present(ac, animated: true)
 //                }
+                
             // user isn't authorized
             } else {
                 DispatchQueue.main.async {

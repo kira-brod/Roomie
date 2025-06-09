@@ -203,10 +203,25 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
                         else {
                             continue
                         }
+                        // filtering out overdue texts
+                        let dateVal = date.dateValue()
+                        if dateVal < Date() {
+                            let expiredText = Text(
+                                        title: title,
+                                        time: dateVal,
+                                        note: note,
+                                        assignedTo: assignedTo,
+                                        notificationID: notifID
+                                    )
+                            self.deleteFromFireStore(text: expiredText)
+                            continue
+                        }
+                        
+                        // adding to local text feild
                         let newText = Text(title: title, time: date.dateValue(), note: note, assignedTo: assignedTo, notificationID: notifID)
     
                         let calendar = Calendar.current
-                        let componentsDate = calendar.dateComponents([.year, .month, .day], from: date.dateValue())
+                        let componentsDate = calendar.dateComponents([.year, .month, .day], from: dateVal)
                         let dateKey = calendar.date(from: componentsDate) ?? Date()
                         
                         var sortedTexts = texts[dateKey] ?? []
@@ -237,8 +252,6 @@ class ScheduledTextsHomeViewController: UIViewController, UITableViewDataSource,
         }
     }
         
-        
-    
     @IBAction func AddAction(_ sender: Any) {
         performSegue(withIdentifier: "toScheduleDetails", sender: self)
     }

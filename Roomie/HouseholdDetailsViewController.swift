@@ -117,7 +117,7 @@ class HouseholdDetailsViewController: UIViewController, UITextFieldDelegate {
     }
     
     @IBAction func addRoomie(_ sender: UIButton!) {
-        
+        // validating non empty fields
         guard let text = H1.text, !text.isEmpty, let phoneNum = phoneNum.text, !phoneNum.isEmpty else {
             let alert = UIAlertController(title: "Error", message: "All Roomie fields must be filled out!!", preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
@@ -125,19 +125,26 @@ class HouseholdDetailsViewController: UIViewController, UITextFieldDelegate {
             return
         }
         
+        // validating phone Number format
+        let phonePattern = #"^\(\d{3}\) \d{3}-\d{4}$"#
+            let phoneRegex = try! NSRegularExpression(pattern: phonePattern)
+            let range = NSRange(location: 0, length: phoneNum.utf16.count)
+            
+        if phoneRegex.firstMatch(in: phoneNum, options: [], range: range) == nil {
+                let alert = UIAlertController(title: "Invalid Phone Number", message: "Please enter a phone number in the format (XXX) XXX-XXXX", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                self.present(alert, animated: true)
+                return
+            }
         
-//        let docRef = db.collection("roomies").document()
         let docRef = db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies").document()
 
-        
         
         let roomieData : [String: Any] = [
             "name" : text,
             "phone" : phoneNum,
             "color" : selectedColor ?? "gray",
         ]
-        
-        
         
         docRef.setData(roomieData) {
             error in

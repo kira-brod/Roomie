@@ -10,9 +10,10 @@ import FirebaseCore
 import SwiftUI
 import FirebaseFirestore
 import FirebaseAuth
+import UserNotifications
 
 @main
-class AppDelegate: UIResponder, UIApplicationDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
 
 
         func application(
@@ -25,8 +26,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             } else {
                 print("Firebase is NOT active")
             }
+            
+            UNUserNotificationCenter.current().delegate = self
+
+            
             return true
         }
+    
+    // to show notification inside the app
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .sound, .list])
+    }
     
 
     // MARK: UISceneSession Lifecycle

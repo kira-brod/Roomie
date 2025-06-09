@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseFirestore
+import MessageUI
 
 class TableCell: UITableViewCell {
     @IBOutlet weak var icon: UIImageView!
@@ -14,7 +15,9 @@ class TableCell: UITableViewCell {
     @IBOutlet weak var roomiePhone: UILabel!
 }
 
-class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, MFMessageComposeViewControllerDelegate {
+   
+    
     
     let db = Firestore.firestore()
     
@@ -35,18 +38,27 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
     @IBOutlet weak var Add: UIButton!
     override func viewDidLoad() {
         super.viewDidLoad()
-                
+            
         tableView.dataSource = self
         tableView.delegate = self
         pageTitle.font = UIFont.systemFont(ofSize: 30, weight: .bold)
         joinCode.font = UIFont.systemFont(ofSize: 30)
-        joinCode.text = "Join Code: \(UserDefaults.standard.string(forKey: "householdID")!.prefix(6))"
-
         Add.layer.cornerRadius = Add.frame.width/2
         Add.layer.masksToBounds = true
         Add.titleLabel?.font = UIFont.systemFont(ofSize: 39, weight: .bold)
-        tableView.allowsSelection = false
         tableView.isScrollEnabled = true
+        
+        //getting the join code
+        db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).getDocument() {
+            document, error in
+            guard let document = document, error == nil else {
+                print("error occured when fetching texts: \(error?.localizedDescription ?? "default error")")
+                return
+            }
+            DispatchQueue.main.async {
+                self.joinCode.text = "Join Code: \(document.data()?["joinCode"] as? String ?? "No code")"
+            }
+        }
         
         db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies").order(by:"name").addSnapshotListener {
             snapshot, error in
@@ -117,7 +129,40 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
         }
     }
     
+    // configuring sms messaging
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let roomie = roomies[indexPath.row]
+        var phoneNumber = roomie.phoneNum
+        
+        phoneNumber = phoneNumber.filter{$0.isNumber}
+        // if running on phone
+        if MFMessageComposeViewController.canSendText() {
+            let composer = MFMessageComposeViewController()
+            composer.messageComposeDelegate = self
+            composer.recipients = [phoneNumber]
+            present(composer, animated: true)
+        } else {
+            // if running on emulator
+            let messageBody = "Text \(roomie.name) at \(phoneNumber)"
+            if let encodedBody = messageBody.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),
+               let url = URL(string: "sms:\(phoneNumber)&body=\(encodedBody)") {
+                UIApplication.shared.open(url)
+            } else {
+                let alert = UIAlertController(title: "Error", message: "Cannot open Messages app", preferredStyle: .alert)
+                        alert.addAction(UIAlertAction(title: "OK", style: .default))
+                        present(alert, animated: true)
+            }
+        }
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+    }
+    
+    func messageComposeViewController(_ controller: MFMessageComposeViewController, didFinishWith result: MessageComposeResult) {
+        controller.dismiss(animated: true)
+    }
+    
     func deleteFromFireStore(roomie: Person) {
+        // delete the roomie document
         db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies").whereField("name", isEqualTo: roomie.name).whereField("phone", isEqualTo: roomie.phoneNum).getDocuments { (snapshot, err) in
             if let err = err {
                 print("Error getting documents: \(err)")
@@ -136,6 +181,8 @@ class HouseholdsHomeViewController: UIViewController, UITableViewDataSource, UIT
                 }
             }
         }
+        
+        // delete all notifs associated with that roomie
     }
     
     @IBAction func AddAction(_ sender: Any) {
