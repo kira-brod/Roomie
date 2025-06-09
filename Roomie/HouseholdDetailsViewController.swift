@@ -18,18 +18,20 @@ class HouseholdDetailsViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var H1: UITextField!
     @IBOutlet weak var phoneNum: UITextField!
     @IBOutlet var colorBtns: [UIButton]!
-
+    @IBOutlet weak var cancel: UIButton!
     
-    let colors: [String] = ["red", "blue", "green", "yellow", "purple"]
+    
+    let colors: [String] = ["red", "blue", "yellow", "purple", "green"]
     var selectedColor: String?
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         H1.font = UIFont.systemFont(ofSize: 25, weight: .bold)
         
         Add.layer.cornerRadius = 10
+        cancel.layer.cornerRadius = 10
         
         H1.placeholder = "Name"
         phoneNum.keyboardType = .numberPad
@@ -50,23 +52,7 @@ class HouseholdDetailsViewController: UIViewController, UITextFieldDelegate {
             btn.layer.cornerRadius = btn.frame.width/2
             btn.clipsToBounds = true
         }
-        
-        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissModal(_:)))
-        tap.cancelsTouchesInView = false
-        view.addGestureRecognizer(tap)
     }
-    
-    @objc func dismissModal(_ sender: UITapGestureRecognizer) {
-        let location = sender.location(in: self.view)
-        let view = self.view.hitTest(location, with: nil)
-        
-        if !(view is UIControl) {
-            self.view.endEditing(true)
-                  dismiss(animated: true)
-              }
-            
-        }
-
     
     func textField(
         _ textField: UITextField,
@@ -155,6 +141,11 @@ class HouseholdDetailsViewController: UIViewController, UITextFieldDelegate {
             }
         }
         
+        dismiss(animated: true)
+    }
+    
+    
+    @IBAction func cancel(_ sender: Any) {
         dismiss(animated: true)
     }
 }

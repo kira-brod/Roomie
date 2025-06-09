@@ -54,7 +54,7 @@ class ScheduledTextsAddTextViewController: UIViewController, UITextViewDelegate,
             }
         }
         
-    db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies").addSnapshotListener { snapshot, error in
+        db.collection("households").document(UserDefaults.standard.string(forKey: "householdID")!).collection("roomies").order(by: "name").addSnapshotListener { snapshot, error in
             if let error = error { return }
             guard let documents = snapshot?.documents else {
                 return
