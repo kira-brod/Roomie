@@ -30,7 +30,7 @@ class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
     @IBOutlet weak var choreName: UITextField!
     @IBOutlet weak var choreDate: UIDatePicker!
     
-    let colorPalette: [UIColor] = [.red, .blue, .green, .yellow, .purple, .orange, .cyan]
+    var roommateColors: [String: UIColor] = [:]
 
     
     override func viewDidLoad() {
@@ -45,23 +45,35 @@ class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
 
         db.collection("households").document(householdID).collection("roomies").getDocuments { snapshot, error in
             if let error = error {
-                print("Failed to fetch roommates from roomies: \(error)")
+                print("Failed to fetch roommates: \(error)")
                 return
             }
 
-            self.roommates = snapshot?.documents.compactMap { $0.data()["name"] as? String } ?? []
+            self.roommates = []
+            self.roommateColors = [:]
+
+            for doc in snapshot?.documents ?? [] {
+                let data = doc.data()
+                guard let name = data["name"] as? String else { continue }
+
+                self.roommates.append(name)
+
+                if let colorName = data["color"] as? String {
+                    self.roommateColors[name] = self.convertColor(from: colorName)
+                } else {
+                    self.roommateColors[name] = .gray
+                }
+            }
+
             DispatchQueue.main.async {
                 self.Roomie.reloadAllComponents()
             }
         }
-
     }
     func colorForRoommate(_ name: String) -> UIColor {
-        if let index = roommates.firstIndex(of: name) {
-            return colorPalette[index % colorPalette.count]
-        }
-        return .gray
+        return roommateColors[name] ?? .gray
     }
+
 
     func numberOfComponents(in pickerView: UIPickerView) -> Int {
         return 1
@@ -115,6 +127,18 @@ class AddChoreViewController: UIViewController, UIPickerViewDelegate, UIPickerVi
             }
         }
     }
+    func convertColor(from name: String) -> UIColor {
+        switch name.lowercased() {
+        case "red": return .systemRed
+        case "blue": return .systemBlue
+        case "green": return .systemGreen
+        case "yellow": return .systemYellow
+        case "purple": return .systemPurple
+        case "gray": return .systemGray
+        default: return .gray
+        }
+    }
+
     
     
 
