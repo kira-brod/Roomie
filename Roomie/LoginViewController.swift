@@ -20,9 +20,13 @@ class LoginViewController: UIViewController, UITextFieldDelegate {
     
     @IBOutlet weak var codeField: UITextField!
     
-
+    @IBOutlet weak var household: UIButton!
+    
+    @IBOutlet weak var newHouse: UIButton!
     override func viewDidLoad() {
         super.viewDidLoad()
+        household.layer.cornerRadius = 10
+        newHouse.layer.cornerRadius = 10
 
         codeField.delegate = self
 
